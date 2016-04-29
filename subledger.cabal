@@ -1,0 +1,73 @@
+name:                  subledger
+version:               0.1.0.0
+synopsis:              An API client for Subledger, the accounting SaaS.
+homepage:              https://github.com/whittle/subledger#readme
+license:               BSD3
+license-file:          LICENSE
+author:                Jason Whittle
+maintainer:            jason.whittle@gmail.com
+copyright:             Copyright (c) 2016 Jason A. Whittle
+category:              API, Network
+build-type:            Simple
+cabal-version:         >=1.10
+stability:             experimental
+tested-with:           GHC==7.10.3
+bug-reports:           https://github.com/whittle/subledger/issues
+description:
+  Please see README.md
+
+extra-source-files:
+  LICENSE
+  README.md
+  stack.yaml
+
+library
+  build-depends:       base >= 4.7 && < 5
+                     , aeson
+                     , http-conduit
+                     , iso8601-time
+                     , resourcet
+                     , text
+                     , time
+  hs-source-dirs:      src
+  exposed-modules:     Lib
+                     , Data.API.Subledger
+                     , Data.API.Subledger.Account
+                     , Data.API.Subledger.Book
+                     , Data.API.Subledger.JournalEntry
+                     , Data.API.Subledger.Org
+                     , Data.API.Subledger.Types
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+
+executable subledger-exe
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , subledger
+                     , text
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+
+test-suite subledger-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  build-depends:       base
+                     , subledger
+                     , aeson
+                     , tasty
+                     , tasty-hunit
+                     , tasty-th
+                     , time
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+  other-modules:       Data.API.Subledger.AccountTest
+                     , Data.API.Subledger.BookTest
+                     , Data.API.Subledger.JournalEntryTest
+                     , Data.API.Subledger.OrgTest
+
+source-repository head
+  type:                git
+  location:            https://github.com/whittle/subledger
