@@ -1,5 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TupleSections #-}
 
 module Data.API.Subledger.Book
@@ -12,9 +14,10 @@ import           Control.Applicative ((<|>), empty)
 import           Data.Aeson
 import qualified Data.Text as T
 import           GHC.Generics (Generic)
+import           Network.HTTP.Types.Method (methodPatch, methodPost)
 
 import           Data.API.Subledger.Org (OrgId(..))
-import           Data.API.Subledger.Types (ResourceState(..))
+import           Data.API.Subledger.Types
 
 newtype BookId = BookId { unBookId :: T.Text }
                deriving (Eq, Show)
@@ -54,3 +57,37 @@ instance FromJSON Book where
                                  <*> v' .: "org"
           inner (_, _) = empty
   parseJSON _ = empty
+
+data CreateBook = CreateBook OrgId BookBody deriving (Eq, Show)
+instance Action CreateBook BookBody Book where
+  toMethod = const methodPost
+  toPathPieces (CreateBook oid _) = ["orgs", unOrgId oid, "books"]
+  toBodyObject (CreateBook _ body) = Just body
+
+data FetchBooks = FetchBooks OrgId deriving (Eq, Show)
+instance Action FetchBooks Void [Book] where
+  toPathPieces (FetchBooks oid) = ["orgs", unOrgId oid, "books"]
+
+data FetchBook = FetchBook OrgId BookId deriving (Eq, Show)
+instance Action FetchBook Void Book where
+  toPathPieces (FetchBook oid bid) = ["orgs", unOrgId oid, "books", unBookId bid]
+
+data PatchBook = PatchBook Book deriving (Eq, Show)
+instance Action PatchBook BookBody Book where
+  toMethod = const methodPatch
+  toPathPieces (PatchBook book) = [ "orgs"
+                                  , unOrgId $ bookOrgId book
+                                  , "books"
+                                  , unBookId $ bookId book
+                                  ]
+  toBodyObject (PatchBook book) = Just $ bookBody book
+
+data ArchiveBook = ArchiveBook OrgId BookId deriving (Eq, Show)
+instance Action ArchiveBook Void Book where
+  toMethod = const methodPost
+  toPathPieces (ArchiveBook oid bid) = ["orgs", unOrgId oid, "books", unBookId bid]
+
+data ActivateBook = ActivateBook OrgId BookId deriving (Eq, Show)
+instance Action ActivateBook Void Book where
+  toMethod = const methodPost
+  toPathPieces (ActivateBook oid bid) = ["orgs", unOrgId oid, "books", unBookId bid]

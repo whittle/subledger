@@ -1,5 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TupleSections #-}
 
 module Data.API.Subledger.Account
@@ -13,9 +15,11 @@ import           Control.Applicative ((<|>), empty)
 import           Data.Aeson
 import qualified Data.Text as T
 import           GHC.Generics (Generic)
+import           Network.HTTP.Types.Method (methodPatch, methodPost)
 
 import Data.API.Subledger.Book (BookId(..))
-import Data.API.Subledger.Types (ResourceState(..))
+import Data.API.Subledger.Org (OrgId(..))
+import Data.API.Subledger.Types
 
 newtype AccountId = AccountId { unAccountId :: T.Text }
                   deriving (Eq, Show)
@@ -77,3 +81,41 @@ instance FromJSON Account where
                                  <*> v' .:? "book"
           inner _ = empty
   parseJSON _ = empty
+
+data CreateAccount = CreateAccount OrgId BookId AccountBody deriving (Eq, Show)
+instance Action CreateAccount AccountBody Account where
+  toMethod = const methodPost
+  toPathPieces (CreateAccount oid bid _) = ["orgs", unOrgId oid, "books", unBookId bid, "accounts"]
+  toBodyObject (CreateAccount _ _ body) = Just body
+
+data FetchAccounts = FetchAccounts OrgId BookId deriving (Eq, Show)
+instance Action FetchAccounts Void [Account] where
+  toPathPieces (FetchAccounts oid bid) = ["orgs", unOrgId oid, "books", unBookId bid, "accounts"]
+
+data FetchAccount = FetchAccount OrgId BookId AccountId deriving (Eq, Show)
+instance Action FetchAccount Void Account where
+  toPathPieces (FetchAccount oid bid aid) = [ "orgs"
+                                            , unOrgId oid
+                                            , "books"
+                                            , unBookId bid
+                                            , "accounts"
+                                            , unAccountId aid
+                                            ]
+
+data PatchAccount = PatchAccount OrgId BookId Account deriving (Eq, Show)
+instance Action PatchAccount AccountBody Account where
+  toMethod = const methodPatch
+  toPathPieces (PatchAccount oid bid account) = [ "orgs"
+                                                , unOrgId oid
+                                                , "books"
+                                                , unBookId bid
+                                                , "accounts"
+                                                , unAccountId $ accountId account
+                                                ]
+  toBodyObject (PatchAccount _ _ account) = Just $ accountBody account
+
+-- GET /orgs/{org_id}/books/{book_id}/accounts/{account_id}/lines
+-- POST /orgs/{org_id}/books/{book_id}/accounts/{account_id}/archive
+-- POST /orgs/{org_id}/books/{book_id}/accounts/{account_id}/activate
+-- GET /orgs/{org_id}/books/{book_id}/accounts/{account_id}/balance
+-- GET /orgs/{org_id}/books/{book_id}/accounts/{account_id}/first_and_last_line
