@@ -4,7 +4,6 @@
 
 module Data.API.Subledger.JournalEntry
        ( JournalEntryId(..)
-       , EffectiveAt(..)
        , JournalEntryBody(..)
        , JournalEntryState(..)
        , JournalEntry(..)
@@ -13,29 +12,19 @@ module Data.API.Subledger.JournalEntry
 import           Control.Applicative ((<|>), empty)
 import           Data.Aeson
 import qualified Data.Text as T
-import           Data.Time.Clock (UTCTime(..))
-import           Data.Time.ISO8601 (parseISO8601)
 
 import           Data.API.Subledger.Book (BookId(..))
+import           Data.API.Subledger.Types
 
 newtype JournalEntryId = JournalEntryId { unJournalEntryId :: T.Text }
                        deriving (Eq, Show)
-
-newtype EffectiveAt = EffectiveAt { unEffectiveAt :: UTCTime }
-                      deriving (Eq, Show)
-
-instance FromJSON EffectiveAt where
-  parseJSON (String s) = outer . parseISO8601 $ T.unpack s
-    where outer (Just t) = pure $ EffectiveAt t
-          outer _ = empty
-  parseJSON _ = empty
 
 data JournalEntryBody = JournalEntryBody { journalEntryDescription :: T.Text
                                          , journalEntryReference :: Maybe T.Text
                                          , journalEntryEffectiveAt :: EffectiveAt
                                          } deriving (Eq, Show)
 
-data JournalEntryState = Active | Archived | Posting | Posted deriving (Eq, Show)
+data JournalEntryState = JEActive | JEArchived | JEPosting | JEPosted deriving (Eq, Show)
 
 data JournalEntry = JournalEntry { journalEntryId :: JournalEntryId
                                  , journalEntryState :: JournalEntryState
@@ -64,10 +53,10 @@ mkJournalEntry s i v d r e b = JournalEntry { journalEntryId = JournalEntryId i
                                 }
 
 instance FromJSON JournalEntry where
-  parseJSON (Object v) = ((Active,) <$> (v .: "active_journal_entry"))
-                         <|> ((Archived,) <$> (v .: "archived_journal_entry"))
-                         <|> ((Posting,) <$> (v .: "posting_journal_entry"))
-                         <|> ((Posted,) <$> (v .: "posted_journal_entry"))
+  parseJSON (Object v) = ((JEActive,) <$> (v .: "active_journal_entry"))
+                         <|> ((JEArchived,) <$> (v .: "archived_journal_entry"))
+                         <|> ((JEPosting,) <$> (v .: "posting_journal_entry"))
+                         <|> ((JEPosted,) <$> (v .: "posted_journal_entry"))
                          >>= inner
     where inner (s, Object v') = mkJournalEntry s
                                  <$> v' .: "id"

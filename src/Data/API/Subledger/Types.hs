@@ -4,16 +4,20 @@
 
 module Data.API.Subledger.Types
        ( Action(..)
+       , EffectiveAt(..)
        , ResourceState(..)
-       , Void(..)
+       , Void
        ) where
 
+import           Control.Applicative (empty)
 import qualified Data.Aeson as A
 import qualified Data.ByteString.Char8 as B
 import           Data.Default (def)
-import           Data.Text (Text)
+import qualified Data.Text as T
 import           Data.Text.Encoding (encodeUtf8)
-import           Data.Void (Void)
+import           Data.Time.Clock (UTCTime(..))
+import           Data.Time.ISO8601 (parseISO8601)
+import qualified Data.Void as V
 import qualified Network.HTTP.Conduit as HTTP
 import qualified Network.HTTP.Types.Method as M
 
@@ -21,7 +25,7 @@ class A.ToJSON a => Action q a r | q -> a r where
   toMethod :: q -> M.Method
   toMethod = const M.methodGet
 
-  toPathPieces :: q -> [Text]
+  toPathPieces :: q -> [T.Text]
 
   toPath :: q -> B.ByteString
   toPath = B.concat . ("v2":) . map (B.cons '/' . encodeUtf8) . toPathPieces
@@ -40,5 +44,16 @@ class A.ToJSON a => Action q a r | q -> a r where
 
 data ResourceState = Active | Archived deriving (Eq, Show)
 
+newtype EffectiveAt = EffectiveAt { unEffectiveAt :: UTCTime }
+                      deriving (Eq, Show)
+
+instance A.FromJSON EffectiveAt where
+  parseJSON (A.String s) = outer . parseISO8601 $ T.unpack s
+    where outer (Just t) = pure $ EffectiveAt t
+          outer _ = empty
+  parseJSON _ = empty
+
+newtype Void = Void V.Void deriving (Eq, Show)
+
 instance A.ToJSON Void where
-  toJSON = error "never encode void"
+  toJSON = error "the void is uninhabited"

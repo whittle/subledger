@@ -13,6 +13,7 @@ import Test.Tasty.TH (testGroupGenerator)
 
 import Data.API.Subledger.Book
 import Data.API.Subledger.JournalEntry
+import Data.API.Subledger.Types
 
 suite :: TestTree
 suite = $(testGroupGenerator)
@@ -31,7 +32,7 @@ case_decode_journal_entry = do
                               , journalEntryEffectiveAt = effectiveAt
                               }
   let journalEntry = JournalEntry { journalEntryId = JournalEntryId "foo"
-                                  , journalEntryState = Posting
+                                  , journalEntryState = JEPosting
                                   , journalEntryVersion = 42
                                   , journalEntryBody = body
                                   , journalEntryBookId = BookId "bar"
