@@ -24,8 +24,8 @@ case_decode_book = do
   let book = Book { bookId = BookId "foo"
                   , bookState = Active
                   , bookVersion = 0
-                  , bookBody = BookBody { bookDescription = "blargh"
-                                        , bookReference = Just "http://sample.org/nonsense"
+                  , bookBody = BookBody { bookBodyDescription = "blargh"
+                                        , bookBodyReference = Just "http://sample.org/nonsense"
                                         }
                   , bookOrgId = OrgId "bar"
                   }

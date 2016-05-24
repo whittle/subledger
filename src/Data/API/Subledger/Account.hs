@@ -11,8 +11,9 @@ module Data.API.Subledger.Account
        , Account(..)
        ) where
 
-import           Control.Applicative ((<|>), empty)
+import           Control.Applicative ((<|>))
 import           Data.Aeson
+import           Data.Aeson.Types (Options(..))
 import qualified Data.Text as T
 import           GHC.Generics (Generic)
 import           Network.HTTP.Types.Method (methodPatch, methodPost)
@@ -20,9 +21,14 @@ import           Network.HTTP.Types.Method (methodPatch, methodPost)
 import Data.API.Subledger.Book (BookId(..))
 import Data.API.Subledger.Org (OrgId(..))
 import Data.API.Subledger.Types
+import Data.API.Subledger.Util
 
 newtype AccountId = AccountId { unAccountId :: T.Text }
                   deriving (Eq, Show)
+
+instance FromJSON AccountId where
+  parseJSON (String s) = pure $ AccountId s
+  parseJSON _ = mempty
 
 data AccountNormalBalance = Credit | Debit
                           deriving (Eq, Show)
@@ -34,14 +40,21 @@ instance ToJSON AccountNormalBalance where
 instance FromJSON AccountNormalBalance where
   parseJSON (String "credit") = pure Credit
   parseJSON (String "debit") = pure Debit
-  parseJSON _ = empty
+  parseJSON _ = mempty
 
-data AccountBody = AccountBody { accountDescription :: T.Text
-                               , accountReference :: Maybe T.Text
-                               , accountNormalBalance :: AccountNormalBalance
+data AccountBody = AccountBody { accountBodyDescription :: T.Text
+                               , accountBodyReference :: Maybe T.Text
+                               , accountBodyNormalBalance :: AccountNormalBalance
                                } deriving (Eq, Generic, Show)
 
-instance ToJSON AccountBody -- provided by Generic
+accountBodyFields :: String -> String
+accountBodyFields = snakeCase . drop 11
+
+instance FromJSON AccountBody where
+  parseJSON = genericParseJSON defaultOptions { fieldLabelModifier = accountBodyFields }
+
+instance ToJSON AccountBody where
+  toJSON = genericToJSON defaultOptions { fieldLabelModifier = accountBodyFields }
 
 data Account = Account { accountId :: AccountId
                        , accountState :: ResourceState
@@ -50,37 +63,17 @@ data Account = Account { accountId :: AccountId
                        , accountBookId :: Maybe BookId
                        } deriving (Eq, Show)
 
-mkAccount :: ResourceState
-             -> T.Text
-             -> Int
-             -> T.Text
-             -> Maybe T.Text
-             -> AccountNormalBalance
-             -> Maybe T.Text
-             -> Account
-mkAccount s i v d r n b = Account { accountId = AccountId i
-                                  , accountState = s
-                                  , accountVersion = v
-                                  , accountBody = AccountBody { accountDescription = d
-                                                              , accountReference = r
-                                                              , accountNormalBalance = n
-                                                              }
-                                  , accountBookId = BookId <$> b
-                                  }
-
 instance FromJSON Account where
   parseJSON (Object v) = ((Active,) <$> (v .: "active_account"))
                          <|> ((Archived,) <$> (v .: "archived_account"))
                          >>= inner
-    where inner (s, Object v') = mkAccount s
-                                 <$> v' .: "id"
-                                 <*> v' .: "version"
-                                 <*> v' .: "description"
-                                 <*> v' .:? "reference"
-                                 <*> v' .: "normal_balance"
-                                 <*> v' .:? "book"
-          inner _ = empty
-  parseJSON _ = empty
+    where inner (s, Object v') = Account <$> v' .: "id"
+                                         <*> pure s
+                                         <*> v' .: "version"
+                                         <*> parseJSON (Object v')
+                                         <*> v' .:? "book"
+          inner _ = mempty
+  parseJSON _ = mempty
 
 data CreateAccount = CreateAccount OrgId BookId AccountBody deriving (Eq, Show)
 instance Action CreateAccount AccountBody Account where

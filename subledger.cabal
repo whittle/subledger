@@ -31,6 +31,7 @@ library
                      , iso8601-time
                      , resourcet
                      , servant
+                     , split
                      , text
                      , time
   hs-source-dirs:      src
@@ -41,6 +42,7 @@ library
                      , Data.API.Subledger.JournalEntry
                      , Data.API.Subledger.Org
                      , Data.API.Subledger.Types
+  other-modules:       Data.API.Subledger.Util
   default-language:    Haskell2010
   ghc-options:         -Wall
 

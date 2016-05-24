@@ -20,8 +20,8 @@ case_decode_org = do
   let json = "{\"active_org\": {\"id\": \"foo\", \"version\": 0}}"
   let org = Org { orgId = OrgId "foo"
                 , orgState = Active
-                , orgBody = OrgBody { orgDescription = Nothing
-                                    , orgReference = Nothing
+                , orgBody = OrgBody { orgBodyDescription = Nothing
+                                    , orgBodyReference = Nothing
                                     }
                 , orgVersion = 0
                 }
@@ -29,8 +29,8 @@ case_decode_org = do
   let json' = "{\"archived_org\": {\"id\": \"bar\", \"version\": 1}}"
   let org' = Org { orgId = OrgId "bar"
                  , orgState = Archived
-                 , orgBody = OrgBody { orgDescription = Nothing
-                                     , orgReference = Nothing
+                 , orgBody = OrgBody { orgBodyDescription = Nothing
+                                     , orgBodyReference = Nothing
                                      }
                  , orgVersion = 1
                  }
@@ -39,8 +39,8 @@ case_decode_org = do
              <> "\"reference\": \"http://baz.com/foo\", \"version\": 2}}"
   let org'' = Org { orgId = OrgId "baz"
                   , orgState = Active
-                  , orgBody = OrgBody { orgDescription = Just "desc of baz"
-                                      , orgReference = Just "http://baz.com/foo"
+                  , orgBody = OrgBody { orgBodyDescription = Just "desc of baz"
+                                      , orgBodyReference = Just "http://baz.com/foo"
                                       }
                   , orgVersion = 2
                   }

@@ -10,23 +10,36 @@ module Data.API.Subledger.Book
        , Book(..)
        ) where
 
-import           Control.Applicative ((<|>), empty)
+import           Control.Applicative ((<|>))
 import           Data.Aeson
+import           Data.Aeson.Types (Options(..))
 import qualified Data.Text as T
 import           GHC.Generics (Generic)
 import           Network.HTTP.Types.Method (methodPatch, methodPost)
 
 import           Data.API.Subledger.Org (OrgId(..))
 import           Data.API.Subledger.Types
+import           Data.API.Subledger.Util
 
 newtype BookId = BookId { unBookId :: T.Text }
                deriving (Eq, Show)
 
-data BookBody = BookBody { bookDescription :: T.Text
-                         , bookReference :: Maybe T.Text
+instance FromJSON BookId where
+  parseJSON (String s) = pure $ BookId s
+  parseJSON _ = mempty
+
+data BookBody = BookBody { bookBodyDescription :: T.Text
+                         , bookBodyReference :: Maybe T.Text
                          } deriving (Eq, Generic, Show)
 
-instance ToJSON BookBody -- provided by Generic
+bookBodyFields :: String -> String
+bookBodyFields = snakeCase . drop 8
+
+instance FromJSON BookBody where
+  parseJSON = genericParseJSON defaultOptions { fieldLabelModifier = bookBodyFields }
+
+instance ToJSON BookBody where
+  toJSON = genericToJSON defaultOptions { fieldLabelModifier = bookBodyFields }
 
 data Book = Book { bookId :: BookId
                  , bookState :: ResourceState
@@ -35,28 +48,17 @@ data Book = Book { bookId :: BookId
                  , bookOrgId :: OrgId
                  } deriving (Eq, Show)
 
-mkBook :: ResourceState -> T.Text -> Int -> T.Text -> Maybe T.Text -> T.Text -> Book
-mkBook s i v d mr o = Book { bookId = BookId i
-                         , bookState = s
-                         , bookVersion = v
-                         , bookBody = BookBody { bookDescription = d
-                                               , bookReference = mr
-                                               }
-                         , bookOrgId = OrgId o
-                         }
-
 instance FromJSON Book where
   parseJSON (Object v) = ((Active,) <$> (v .: "active_book"))
-                         <|> ((Archived,) <$> (v .: "archived_book"))
-                         >>= inner
-    where inner (s, Object v') = mkBook s
-                                 <$> v' .: "id"
-                                 <*> v' .: "version"
-                                 <*> v' .: "description"
-                                 <*> v' .:? "reference"
-                                 <*> v' .: "org"
-          inner (_, _) = empty
-  parseJSON _ = empty
+                     <|> ((Archived,) <$> (v .: "archived_book"))
+                     >>= inner
+    where inner (s, Object v') = Book <$> v' .: "id"
+                                      <*> pure s
+                                      <*> v' .: "version"
+                                      <*> parseJSON (Object v')
+                                      <*> v' .: "org"
+          inner (_, _) = mempty
+  parseJSON _ = mempty
 
 data CreateBook = CreateBook OrgId BookBody deriving (Eq, Show)
 instance Action CreateBook BookBody Book where

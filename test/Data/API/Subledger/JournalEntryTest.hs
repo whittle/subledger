@@ -27,9 +27,9 @@ case_decode_journal_entry = do
   let effectiveAt = EffectiveAt $ UTCTime { utctDay = ModifiedJulianDay 57497
                                           , utctDayTime = secondsToDiffTime 62093
                                           }
-  let body = JournalEntryBody { journalEntryDescription = "a journal entry named foo"
-                              , journalEntryReference = Just "http://ocho.co/baz"
-                              , journalEntryEffectiveAt = effectiveAt
+  let body = JournalEntryBody { journalEntryBodyDescription = "a journal entry named foo"
+                              , journalEntryBodyReference = Just "http://ocho.co/baz"
+                              , journalEntryBodyEffectiveAt = effectiveAt
                               }
   let journalEntry = JournalEntry { journalEntryId = JournalEntryId "foo"
                                   , journalEntryState = JEPosting
@@ -38,3 +38,16 @@ case_decode_journal_entry = do
                                   , journalEntryBookId = BookId "bar"
                                   }
   Just journalEntry @=? decode json
+
+case_decode_journal_entry_body :: Assertion
+case_decode_journal_entry_body = do
+  let json = "{\"description\": \"foo\", \"reference\": \"https://bar.org\", "
+          <> "\"effective_at\": \"2016-05-24T21:39:36.000Z\"}"
+  let effectiveAt = EffectiveAt $ UTCTime { utctDay = ModifiedJulianDay 57532
+                                          , utctDayTime = secondsToDiffTime 77976
+                                          }
+  let body = JournalEntryBody { journalEntryBodyDescription = "foo"
+                              , journalEntryBodyReference = Just "https://bar.org"
+                              , journalEntryBodyEffectiveAt = effectiveAt
+                              }
+  Just body @=? decode json

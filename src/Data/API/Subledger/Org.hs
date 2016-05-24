@@ -10,25 +10,34 @@ module Data.API.Subledger.Org
        ) where
 
 import           Control.Applicative ((<|>))
-import           Control.Monad (mzero)
 import           Data.Aeson
+import           Data.Aeson.Types (Options(..))
 import qualified Data.Text as T
 import           GHC.Generics (Generic)
 import           Network.HTTP.Types.Method (methodPatch, methodPost)
 
 import           Data.API.Subledger.Types
+import           Data.API.Subledger.Util
 
 newtype OrgId = OrgId { unOrgId :: T.Text }
               deriving (Eq, Show)
 
-data OrgBody = OrgBody { orgDescription :: Maybe T.Text
-                       , orgReference :: Maybe T.Text
+instance FromJSON OrgId where
+  parseJSON (String s) = pure $ OrgId s
+  parseJSON _ = mempty
+
+data OrgBody = OrgBody { orgBodyDescription :: Maybe T.Text
+                       , orgBodyReference :: Maybe T.Text
                        } deriving (Eq, Generic, Show)
 
+orgBodyFields :: String -> String
+orgBodyFields = snakeCase . drop 7
+
+instance FromJSON OrgBody where
+  parseJSON = genericParseJSON defaultOptions { fieldLabelModifier = orgBodyFields }
+
 instance ToJSON OrgBody where
-  toJSON body = object [ "description" .= orgDescription body
-                       , "reference" .= orgReference body
-                       ]
+  toJSON = genericToJSON defaultOptions { fieldLabelModifier = orgBodyFields }
 
 data Org = Org { orgId :: OrgId
                , orgState :: ResourceState
@@ -36,26 +45,16 @@ data Org = Org { orgId :: OrgId
                , orgBody :: OrgBody
                } deriving (Eq, Show)
 
-mkOrg :: ResourceState -> T.Text -> Int -> Maybe T.Text -> Maybe T.Text -> Org
-mkOrg s i v md mr = Org { orgId = OrgId i
-                        , orgState = s
-                        , orgVersion = v
-                        , orgBody = OrgBody { orgDescription = md
-                                            , orgReference = mr
-                                            }
-                        }
-
 instance FromJSON Org where
   parseJSON (Object v) = ((Active,) <$> (v .: "active_org"))
-                         <|> ((Archived,) <$> (v .: "archived_org"))
-                         >>= inner
-    where inner (s, Object v') = mkOrg s
-                                 <$> v' .: "id"
-                                 <*> v' .: "version"
-                                 <*> v' .:? "description"
-                                 <*> v' .:? "reference"
-          inner (_, _) = mzero
-  parseJSON _ = mzero
+                     <|> ((Archived,) <$> (v .: "archived_org"))
+                     >>= inner
+    where inner (s, Object v') = Org <$> v' .: "id"
+                                     <*> pure s
+                                     <*> v' .: "version"
+                                     <*> parseJSON (Object v')
+          inner (_, _) = mempty
+  parseJSON _ = mempty
 
 data CreateOrg = CreateOrg OrgBody deriving (Eq, Show)
 instance Action CreateOrg OrgBody Org where
