@@ -30,7 +30,6 @@ library
                      , http-types
                      , iso8601-time
                      , resourcet
-                     , servant
                      , split
                      , text
                      , time
