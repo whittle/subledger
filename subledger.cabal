@@ -30,6 +30,7 @@ library
                      , http-types
                      , iso8601-time
                      , resourcet
+                     , scientific
                      , split
                      , text
                      , time
@@ -39,6 +40,7 @@ library
                      , Data.API.Subledger.Account
                      , Data.API.Subledger.Book
                      , Data.API.Subledger.JournalEntry
+                     , Data.API.Subledger.Line
                      , Data.API.Subledger.Org
                      , Data.API.Subledger.Types
   other-modules:       Data.API.Subledger.Util
@@ -62,8 +64,10 @@ test-suite subledger-test
   build-depends:       base
                      , subledger
                      , aeson
+                     , quickcheck-instances
                      , tasty
                      , tasty-hunit
+                     , tasty-quickcheck
                      , tasty-th
                      , time
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
@@ -72,6 +76,7 @@ test-suite subledger-test
                      , Data.API.Subledger.BookTest
                      , Data.API.Subledger.JournalEntryTest
                      , Data.API.Subledger.OrgTest
+                     , Data.API.Subledger.TypesTest
 
 source-repository head
   type:                git

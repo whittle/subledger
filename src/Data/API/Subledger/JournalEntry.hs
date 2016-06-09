@@ -37,8 +37,8 @@ journalEntryBodyFields = snakeCase . drop 16
 instance FromJSON JournalEntryBody where
   parseJSON = genericParseJSON defaultOptions { fieldLabelModifier = journalEntryBodyFields }
 
--- instance ToJSON JournalEntryBody where
---   toJSON = genericToJSON defaultOptions { fieldLabelModifier = journalEntryBodyFields }
+instance ToJSON JournalEntryBody where
+  toJSON = genericToJSON defaultOptions { fieldLabelModifier = journalEntryBodyFields }
 
 data JournalEntryState = JEActive | JEArchived | JEPosting | JEPosted deriving (Eq, Show)
 

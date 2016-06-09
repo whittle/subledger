@@ -24,7 +24,7 @@ case_decode_journal_entry = do
              <> "\"book\": \"bar\", \"effective_at\": \"2016-04-19T17:14:53.000Z\", "
              <> "\"description\": \"a journal entry named foo\", "
              <> "\"reference\": \"http://ocho.co/baz\", \"version\": 42}}"
-  let effectiveAt = EffectiveAt $ UTCTime { utctDay = ModifiedJulianDay 57497
+  let effectiveAt = fromUTCTime $ UTCTime { utctDay = ModifiedJulianDay 57497
                                           , utctDayTime = secondsToDiffTime 62093
                                           }
   let body = JournalEntryBody { journalEntryBodyDescription = "a journal entry named foo"
@@ -43,7 +43,7 @@ case_decode_journal_entry_body :: Assertion
 case_decode_journal_entry_body = do
   let json = "{\"description\": \"foo\", \"reference\": \"https://bar.org\", "
           <> "\"effective_at\": \"2016-05-24T21:39:36.000Z\"}"
-  let effectiveAt = EffectiveAt $ UTCTime { utctDay = ModifiedJulianDay 57532
+  let effectiveAt = fromUTCTime $ UTCTime { utctDay = ModifiedJulianDay 57532
                                           , utctDayTime = secondsToDiffTime 77976
                                           }
   let body = JournalEntryBody { journalEntryBodyDescription = "foo"
