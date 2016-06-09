@@ -35,8 +35,7 @@ library
                      , text
                      , time
   hs-source-dirs:      src
-  exposed-modules:     Lib
-                     , Data.API.Subledger
+  exposed-modules:     Data.API.Subledger
                      , Data.API.Subledger.Account
                      , Data.API.Subledger.Book
                      , Data.API.Subledger.JournalEntry
