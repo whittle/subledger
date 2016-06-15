@@ -30,16 +30,16 @@ instance FromJSON AccountId where
   parseJSON (String s) = pure $ AccountId s
   parseJSON _ = mempty
 
-data AccountNormalBalance = Credit | Debit
+data AccountNormalBalance = CreditNormal | DebitNormal
                           deriving (Eq, Show)
 
 instance ToJSON AccountNormalBalance where
-  toJSON Credit = String "credit"
-  toJSON Debit = String "debit"
+  toJSON CreditNormal = String "credit"
+  toJSON DebitNormal = String "debit"
 
 instance FromJSON AccountNormalBalance where
-  parseJSON (String "credit") = pure Credit
-  parseJSON (String "debit") = pure Debit
+  parseJSON (String "credit") = pure CreditNormal
+  parseJSON (String "debit") = pure DebitNormal
   parseJSON _ = mempty
 
 data AccountBody = AccountBody { accountBodyDescription :: T.Text

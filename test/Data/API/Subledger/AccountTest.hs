@@ -26,7 +26,7 @@ case_decode_account = do
                         , accountVersion = 1
                         , accountBody = AccountBody { accountBodyDescription = "this is account foo"
                                                     , accountBodyReference = Just "http://foo.co/bar"
-                                                    , accountBodyNormalBalance = Credit
+                                                    , accountBodyNormalBalance = CreditNormal
                                                     }
                         , accountBookId = Just $ BookId "bar"
                         }
@@ -38,6 +38,6 @@ case_decode_account_body = do
           <> "\"normal_balance\": \"debit\"}"
   let body = AccountBody { accountBodyDescription = "foo"
                          , accountBodyReference = Just "https://bar.org"
-                         , accountBodyNormalBalance = Debit
+                         , accountBodyNormalBalance = DebitNormal
                          }
   Just body @=? decode json
