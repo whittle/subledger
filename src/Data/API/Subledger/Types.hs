@@ -30,9 +30,12 @@ import           GHC.Generics (Generic)
 import qualified Network.HTTP.Conduit as HTTP
 import qualified Network.HTTP.Types.Method as M
 
+
+-- ResourceState
 data ResourceState = Active | Archived deriving (Eq, Show)
 
 
+-- EffectiveAt
 newtype EffectiveAt = EffectiveAt { toUTCTime :: UTCTime }
                       deriving (Eq, Show)
 
@@ -53,6 +56,7 @@ instance A.ToJSON EffectiveAt where
   toJSON = A.String . T.pack . formatISO8601Millis . toUTCTime
 
 
+-- AccountingAmount
 newtype AccountingAmount = AccountingAmount { toScientific :: S.Scientific }
                          deriving (Eq, Show)
 
@@ -66,6 +70,7 @@ instance A.ToJSON AccountingAmount where
   toJSON = A.String . T.pack . S.formatScientific S.Fixed Nothing . toScientific
 
 
+-- AccountingValue
 data AccountingValue = AccountingDebitValue S.Scientific
                      | AccountingCreditValue S.Scientific
                      | AccountingZeroValue
@@ -102,6 +107,8 @@ data CreditValue = CreditValue S.Scientific
                  | CreditValueZero
                  deriving (Eq, Show)
 
+
+-- Action
 class A.ToJSON a => Action q a r | q -> a r where
   toMethod :: q -> M.Method
   toMethod = const M.methodGet
@@ -123,6 +130,8 @@ class A.ToJSON a => Action q a r | q -> a r where
                     , HTTP.requestBody = toBody q
                     }
 
+
+-- Void
 newtype Void = Void V.Void deriving (Eq, Show)
 
 instance A.ToJSON Void where
