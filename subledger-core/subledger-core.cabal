@@ -1,0 +1,83 @@
+name:                  subledger-core
+version:               0.1.0.0
+synopsis:              API client for Subledger, the accounting SaaS; pure core
+homepage:              https://github.com/whittle/subledger#readme
+license:               BSD3
+license-file:          LICENSE
+author:                Jason Whittle
+maintainer:            jason.whittle@gmail.com
+copyright:             Copyright (c) 2016 Jason A. Whittle
+category:              API
+build-type:            Simple
+cabal-version:         >=1.10
+stability:             experimental
+tested-with:           GHC == 7.10.3
+bug-reports:           https://github.com/whittle/subledger/issues
+description:
+  .
+  [Pure API Wrapper]
+  `subledger-core` provides pure wrappers around the Subledger API
+  objects and methods.
+  .
+  Most of the good ideas in this package were taken wholesale from the
+  `stripe-haskell` family of packages by David Johnson.
+
+extra-source-files:    LICENSE
+
+library
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+  build-depends:       base           >= 4.7 && < 5
+                     , aeson          >= 0.11
+                     , bytestring     >= 0.10
+                     , data-default
+                     , http-conduit
+                     , http-types
+                     , iso8601-time
+                     , QuickCheck     >= 2.8
+                     , quickcheck-instances >= 0.3
+                     , resourcet
+                     , scientific
+                     , split
+                     , text
+                     , time
+  hs-source-dirs:      src
+  exposed-modules:     Data.API.Subledger
+                     , Data.API.Subledger.Account
+                     , Data.API.Subledger.ArbitraryInstances
+                     , Data.API.Subledger.Book
+                     , Data.API.Subledger.Error
+                     , Data.API.Subledger.JournalEntry
+                     , Data.API.Subledger.Line
+                     , Data.API.Subledger.Org
+                     , Data.API.Subledger.Request
+                     , Data.API.Subledger.Types
+                     , Network.API.Subledger.Client
+  other-modules:       Data.API.Subledger.Util
+
+test-suite test
+  type:                exitcode-stdio-1.0
+  default-language:    Haskell2010
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , subledger-core
+                     , aeson
+                     , bytestring >= 0.10
+                     , quickcheck-instances >= 0.3
+                     , tasty
+                     , tasty-hunit
+                     , tasty-quickcheck
+                     , tasty-th
+                     , time
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  other-modules:       Data.API.Subledger.AccountTest
+                     , Data.API.Subledger.BookTest
+                     , Data.API.Subledger.JournalEntryTest
+                     , Data.API.Subledger.OrgTest
+                     , Data.API.Subledger.TypesTest
+
+source-repository head
+  type:                git
+  location:            https://github.com/whittle/subledger
+  subdir:              subledger-core

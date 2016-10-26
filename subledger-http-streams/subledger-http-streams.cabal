@@ -1,0 +1,62 @@
+name:                  subledger-http-streams
+version:               0.1.0.0
+synopsis:              API client for Subledger, the accounting SaaS; http-streams backend
+homepage:              https://github.com/whittle/subledger#readme
+license:               BSD3
+license-file:          LICENSE
+author:                Jason Whittle
+maintainer:            jason.whittle@gmail.com
+copyright:             Copyright (c) 2016 Jason A. Whittle
+category:              API, Network
+build-type:            Simple
+cabal-version:         >=1.10
+stability:             experimental
+tested-with:           GHC == 7.10.3
+bug-reports:           https://github.com/whittle/subledger/issues
+description:
+  .
+  [Access Subledger API using http-streams]
+  This package provides access to the Subledger API using
+  `subledger-core` and `http-streams`. See also the `subledger
+  package.
+  .
+  Most of the good ideas in this package were taken wholesale from the
+  `stripe-haskell` family of packages by David Johnson.
+
+extra-source-files:    LICENSE
+
+library
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+  build-depends:       base                 >= 4.7 && < 5
+                     , aeson                >= 0.11
+                     , binary               >= 0.7
+                     , bytestring           >= 0.10
+                     , data-default         >= 0.5
+                     , HsOpenSSL            >= 0.11
+                     , http-streams         >= 0.7
+                     , io-streams           >= 1.2
+                     , subledger-core       >= 0.1
+                     , text                 >= 1.1
+  hs-source-dirs:      src
+  exposed-modules:     Network.API.Subledger.Client.HttpStreams
+
+test-suite test
+  type:                exitcode-stdio-1.0
+  default-language:    Haskell2010
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , subledger-http-streams
+                     , free
+                     , HsOpenSSL
+                     , hspec
+                     , http-streams
+                     , subledger-core
+                     , subledger-tests
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+
+source-repository head
+  type:                git
+  location:            https://github.com/whittle/subledger
+  subdir:              subledger-http-streams

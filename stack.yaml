@@ -6,7 +6,10 @@ resolver: lts-6.1
 
 # Local packages, usually specified by relative directory name
 packages:
-- '.'
+- subledger-core/
+- subledger-http-streams/
+- subledger-tests/
+
 # Packages to be pulled from upstream that are not in the resolver (e.g., acme-missiles-0.3)
 extra-deps: []
 

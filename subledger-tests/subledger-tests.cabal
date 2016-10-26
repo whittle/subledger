@@ -1,0 +1,54 @@
+name:                  subledger-tests
+version:               0.1.0.0
+synopsis:              Suite of client tests for any library built on subledger-core
+homepage:              https://github.com/whittle/subledger#readme
+license:               BSD3
+license-file:          LICENSE
+author:                Jason Whittle
+maintainer:            jason.whittle@gmail.com
+copyright:             Copyright (c) 2016 Jason A. Whittle
+category:              API, Network, Test
+build-type:            Simple
+cabal-version:         >=1.10
+stability:             experimental
+tested-with:           GHC == 7.10.3
+bug-reports:           https://github.com/whittle/subledger/issues
+description:
+  .
+  [Hspec Tests]
+  This package contains all the Subledger Hspec tests in an HTTP
+  backend agnostic format. To run these tests, you will need to
+  install a package such as `subledger-http-streams`. This allows each
+  backend to run the full test suite.
+  .
+  Most of the good ideas in this package were taken wholesale from the
+  `stripe-haskell` family of packages by David Johnson.
+
+extra-source-files:    LICENSE
+
+library
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+  build-depends:       base                 >= 4.7 && < 5
+                     , aeson                >= 0.11
+                     , bytestring           >= 0.10
+                     , free                 >= 4.10
+                     , hspec                >= 2.1
+                     , hspec-core           >= 2.1
+                     , mtl                  >= 2.1.2
+                     , random               >= 1.1
+                     , subledger-core       >= 0.1
+                     , text                 >= 1.0
+                     , time                 >= 1.4
+                     , transformers         >= 0.3
+                     , unordered-containers >= 0.2.5
+  hs-source-dirs:      src
+  exposed-modules:     Network.API.Subledger.Test.AllSpecs
+                     , Network.API.Subledger.Test.Config
+                     , Network.API.Subledger.Test.Prelude
+                     , Network.API.Subledger.Test.Org
+
+source-repository head
+  type:                git
+  location:            https://github.com/whittle/subledger
+  subdir:              subledger-tests

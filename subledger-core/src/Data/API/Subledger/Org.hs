@@ -2,11 +2,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Data.API.Subledger.Org
        ( Org(..)
        , OrgId(..)
        , OrgBody(..)
+       , createOrg
        ) where
 
 import           Control.Applicative ((<|>))
@@ -16,6 +18,7 @@ import qualified Data.Text as T
 import           GHC.Generics (Generic)
 import           Network.HTTP.Types.Method (methodPatch, methodPost)
 
+import           Data.API.Subledger.Request
 import           Data.API.Subledger.Types
 import           Data.API.Subledger.Util
 
@@ -61,6 +64,14 @@ instance Action CreateOrg OrgBody Org where
   toMethod = const methodPost
   toPathPieces = const ["orgs"]
   toBodyObject (CreateOrg body) = Just body
+
+createOrg :: T.Text -> SubledgerRequest CreateOrg
+createOrg description = mkRequest POST ["orgs"] $ Just
+                        OrgBody { orgBodyDescription = Just description
+                                , orgBodyReference = Nothing
+                                }
+
+type instance SubledgerReturn CreateOrg = Org
 
 data FetchOrg = FetchOrg OrgId deriving (Eq, Show)
 instance Action FetchOrg Void Org where
