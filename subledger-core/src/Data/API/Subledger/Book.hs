@@ -3,23 +3,25 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Data.API.Subledger.Book
        ( BookId(..)
        , BookBody(..)
        , Book(..)
+       , createBook
        ) where
 
 import           Control.Applicative ((<|>))
 import           Data.Aeson
 import           Data.Aeson.Types (Options(..))
+import           Data.API.Subledger.Org (OrgId(..))
+import           Data.API.Subledger.Request
+import           Data.API.Subledger.Types
+import           Data.API.Subledger.Util
 import qualified Data.Text as T
 import           GHC.Generics (Generic)
 import           Network.HTTP.Types.Method (methodPatch, methodPost)
-
-import           Data.API.Subledger.Org (OrgId(..))
-import           Data.API.Subledger.Types
-import           Data.API.Subledger.Util
 
 newtype BookId = BookId { unBookId :: T.Text }
                deriving (Eq, Show)
@@ -60,11 +62,11 @@ instance FromJSON Book where
           inner (_, _) = mempty
   parseJSON _ = mempty
 
-data CreateBook = CreateBook OrgId BookBody deriving (Eq, Show)
-instance Action CreateBook BookBody Book where
-  toMethod = const methodPost
-  toPathPieces (CreateBook oid _) = ["orgs", unOrgId oid, "books"]
-  toBodyObject (CreateBook _ body) = Just body
+data CreateBook
+type instance SubledgerReturn CreateBook = Book
+
+createBook :: OrgId -> BookBody -> SubledgerRequest CreateBook
+createBook oid = mkRequest POST ["orgs", unOrgId oid, "books"]
 
 data FetchBooks = FetchBooks OrgId deriving (Eq, Show)
 instance Action FetchBooks Void [Book] where

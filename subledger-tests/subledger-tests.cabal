@@ -44,6 +44,7 @@ library
                      , unordered-containers >= 0.2.5
   hs-source-dirs:      src
   exposed-modules:     Network.API.Subledger.Test.AllSpecs
+                     , Network.API.Subledger.Test.Book
                      , Network.API.Subledger.Test.Config
                      , Network.API.Subledger.Test.Prelude
                      , Network.API.Subledger.Test.Org

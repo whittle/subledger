@@ -5,8 +5,6 @@ module Network.API.Subledger.Test.Org (spec) where
 
 import Data.API.Subledger.Org
 import Data.API.Subledger.Types
-import Data.Either (Either(..), isRight)
-import Data.Maybe (Maybe(..))
 import Network.API.Subledger.Test.Prelude
 import Test.Hspec
 

@@ -17,16 +17,21 @@ module Network.API.Subledger.Test.Prelude
        , void
        , fail
        , liftIO
-       , ($)
        , fromString
+       , module X
+       , Either(..)
+       , isRight
+       , Maybe(..)
        ) where
 
 import           Prelude ((.), ($), Functor(..), id, IO, String)
+import qualified Prelude as X hiding ((>>=), (>>), return)
 import qualified Control.Monad as M
 import qualified Control.Monad.Trans as M
 import           Control.Monad.Trans.Free (FreeT(..), liftF)
 import           Data.Aeson (FromJSON, fromJSON, Result, Value)
-import           Data.Either (Either)
+import           Data.Either (Either(..), isRight)
+import           Data.Maybe (Maybe(..))
 import           Data.String (fromString)
 import           Network.API.Subledger.Client
 import           Test.Hspec
