@@ -6,12 +6,12 @@ module Data.API.Subledger.Request
        ( SubledgerRequest(..)
        , SubledgerReturn
        , mkRequest
+       , mkEmptyRequest
        , Method(..)
        ) where
 
-import           Data.Aeson (encode, Encoding, toEncoding, ToJSON)
+import           Data.Aeson (encode, ToJSON)
 import qualified Data.ByteString.Lazy as L
-import           Data.String (IsString(..))
 import           Data.Text (Text)
 import qualified Data.Text as T
 import           Data.Typeable (Typeable)
@@ -37,12 +37,20 @@ data SubledgerRequest a =
                    } deriving (Eq, Show, Typeable)
 
 -- | Helper method for creating `SubledgerRequest`s
-mkRequest :: (ToJSON b) => Method -> [Text] -> Maybe b -> SubledgerRequest a
+mkRequest :: (ToJSON b) => Method -> [Text] -> b -> SubledgerRequest a
 mkRequest m ps b = SubledgerRequest { method = m
                                     , path = toPath ps
-                                    , body = encode <$> b
+                                    , body = Just $ encode b
                                     }
-  where toPath = T.concat . map (T.cons '/') . ("v2":)
+
+mkEmptyRequest :: Method -> [Text] -> SubledgerRequest a
+mkEmptyRequest m ps = SubledgerRequest { method = m
+                                       , path = toPath ps
+                                       , body = Nothing
+                                       }
+
+toPath :: [Text] -> Text
+toPath = T.intercalate "/" . ("":) . ("v2":)
 
 -- | Type-level function mapping from request type to response type
 type family SubledgerReturn a :: *

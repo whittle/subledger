@@ -9,6 +9,7 @@ module Data.API.Subledger.Org
        , OrgId(..)
        , OrgBody(..)
        , createOrg
+       , fetchOrg
        ) where
 
 import           Control.Applicative ((<|>))
@@ -59,23 +60,20 @@ instance FromJSON Org where
           inner (_, _) = mempty
   parseJSON _ = mempty
 
-data CreateOrg = CreateOrg OrgBody deriving (Eq, Show)
-instance Action CreateOrg OrgBody Org where
-  toMethod = const methodPost
-  toPathPieces = const ["orgs"]
-  toBodyObject (CreateOrg body) = Just body
+data CreateOrg
+type instance SubledgerReturn CreateOrg = Org
 
 createOrg :: T.Text -> SubledgerRequest CreateOrg
-createOrg description = mkRequest POST ["orgs"] $ Just
+createOrg description = mkRequest POST ["orgs"] $
                         OrgBody { orgBodyDescription = Just description
                                 , orgBodyReference = Nothing
                                 }
 
-type instance SubledgerReturn CreateOrg = Org
+data FetchOrg
+type instance SubledgerReturn FetchOrg = Org
 
-data FetchOrg = FetchOrg OrgId deriving (Eq, Show)
-instance Action FetchOrg Void Org where
-  toPathPieces (FetchOrg oid) = ["orgs", unOrgId oid]
+fetchOrg :: OrgId -> SubledgerRequest FetchOrg
+fetchOrg oid = mkEmptyRequest GET ["orgs", unOrgId oid]
 
 data PatchOrg = PatchOrg Org deriving (Eq, Show)
 instance Action PatchOrg OrgBody Org where
