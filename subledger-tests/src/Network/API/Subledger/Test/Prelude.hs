@@ -8,7 +8,8 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 module Network.API.Subledger.Test.Prelude
-       ( SubledgerSpec
+       ( SubledgerInterpreter
+       , SubledgerSpec
        , Subledger
        , SubledgerRequestF(..)
        , (>>=)
@@ -38,7 +39,9 @@ import           Network.API.Subledger.Client
 import           Test.Hspec
 import           Test.Hspec.Core.Spec (SpecM)
 
-type SubledgerSpec = (forall a. Subledger a -> IO (Either SubledgerError a)) -> Spec
+type SubledgerInterpreter = forall a. Subledger a -> IO (Either SubledgerError a)
+
+type SubledgerSpec = SubledgerInterpreter -> Spec
 
 type Subledger = FreeT SubledgerRequestF IO
 

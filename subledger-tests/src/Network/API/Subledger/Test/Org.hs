@@ -1,7 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE RebindableSyntax #-}
 
-module Network.API.Subledger.Test.Org (spec) where
+module Network.API.Subledger.Test.Org
+       ( spec
+       , establishOrg
+       ) where
 
 import Data.API.Subledger.Org
 import Data.API.Subledger.Types
@@ -35,3 +39,9 @@ spec subledger =
       body `shouldBe` OrgBody { orgBodyDescription = Just "Another org"
                               , orgBodyReference = Nothing
                               }
+
+establishOrg :: SubledgerInterpreter -> () -> IO OrgId
+establishOrg subledger _ = do
+  Right Org { orgId = oid } <-
+    subledger $ return =<< createOrg "account spec org"
+  return oid
