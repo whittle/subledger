@@ -2,7 +2,10 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE RebindableSyntax #-}
 
-module Network.API.Subledger.Test.Account (spec) where
+module Network.API.Subledger.Test.Account
+       ( spec
+       , establishAccount
+       ) where
 
 import Data.API.Subledger.Account
 import Data.API.Subledger.Book
@@ -31,3 +34,15 @@ spec subledger =
         state `shouldBe` Active
         abid `shouldBe` Just bid
         aBody `shouldBe` body
+      beforeWith (establishAccount subledger) $
+        it "successfully retrieves an account" $ \(oid, bid, aid) -> do
+          result <- subledger $ do
+            return =<< fetchAccount oid bid aid
+          result `shouldSatisfy` isRight
+
+establishAccount :: SubledgerInterpreter -> (OrgId, BookId) -> IO (OrgId, BookId, AccountId)
+establishAccount subledger (oid, bid) = do
+  let body = AccountBody "sample account" Nothing DebitNormal
+  Right Account { accountId = aid } <-
+    subledger $ return =<< createAccount oid bid body
+  return (oid, bid, aid)

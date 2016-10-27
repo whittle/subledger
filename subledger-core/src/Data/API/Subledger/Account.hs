@@ -11,6 +11,7 @@ module Data.API.Subledger.Account
        , AccountBody(..)
        , Account(..)
        , createAccount
+       , fetchAccount
        ) where
 
 import           Control.Applicative ((<|>))
@@ -87,15 +88,12 @@ data FetchAccounts = FetchAccounts OrgId BookId deriving (Eq, Show)
 instance Action FetchAccounts Void [Account] where
   toPathPieces (FetchAccounts oid bid) = ["orgs", unOrgId oid, "books", unBookId bid, "accounts"]
 
-data FetchAccount = FetchAccount OrgId BookId AccountId deriving (Eq, Show)
-instance Action FetchAccount Void Account where
-  toPathPieces (FetchAccount oid bid aid) = [ "orgs"
-                                            , unOrgId oid
-                                            , "books"
-                                            , unBookId bid
-                                            , "accounts"
-                                            , unAccountId aid
-                                            ]
+data FetchAccount
+type instance SubledgerReturn FetchAccount = Account
+
+fetchAccount :: OrgId -> BookId -> AccountId -> SubledgerRequest FetchAccount
+fetchAccount (OrgId oid) (BookId bid) (AccountId aid) = mkEmptyRequest GET ps
+  where ps = ["orgs", oid, "books", bid, "accounts", aid]
 
 data PatchAccount = PatchAccount OrgId BookId Account deriving (Eq, Show)
 instance Action PatchAccount AccountBody Account where
