@@ -13,6 +13,7 @@ module Network.API.Subledger.Test.Prelude
        , SubledgerRequestF(..)
        , (>>=)
        , (>>)
+       , (=<<)
        , return
        , void
        , fail
@@ -24,7 +25,7 @@ module Network.API.Subledger.Test.Prelude
        , Maybe(..)
        ) where
 
-import           Prelude ((.), ($), Functor(..), id, IO, String)
+import           Prelude ((.), ($), flip, Functor(..), id, IO, String)
 import qualified Prelude as X hiding ((>>=), (>>), return)
 import qualified Control.Monad as M
 import qualified Control.Monad.Trans as M
@@ -89,6 +90,10 @@ instance SubledgerLift (SpecM a r) where
 (>>=) :: (SubledgerLift t, M.Monad m, LiftedType t ~ m a)
       => t -> (a -> m b) -> m b
 m >>= f = (subledgerLift m) M.>>= f
+
+(=<<) :: (SubledgerLift t, M.Monad m, LiftedType t ~ m a)
+      => (a -> m b) -> t -> m b
+(=<<) = flip (>>=)
 
 (>>) :: (SubledgerLift t, M.Monad m, LiftedType t ~ m a)
      => t -> m b -> m b

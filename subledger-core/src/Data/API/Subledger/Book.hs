@@ -10,6 +10,7 @@ module Data.API.Subledger.Book
        , BookBody(..)
        , Book(..)
        , createBook
+       , fetchBook
        ) where
 
 import           Control.Applicative ((<|>))
@@ -72,9 +73,11 @@ data FetchBooks = FetchBooks OrgId deriving (Eq, Show)
 instance Action FetchBooks Void [Book] where
   toPathPieces (FetchBooks oid) = ["orgs", unOrgId oid, "books"]
 
-data FetchBook = FetchBook OrgId BookId deriving (Eq, Show)
-instance Action FetchBook Void Book where
-  toPathPieces (FetchBook oid bid) = ["orgs", unOrgId oid, "books", unBookId bid]
+data FetchBook
+type instance SubledgerReturn FetchBook = Book
+
+fetchBook :: OrgId -> BookId -> SubledgerRequest FetchBook
+fetchBook (OrgId oid) (BookId bid) = mkEmptyRequest GET ["orgs", oid, "books", bid]
 
 data PatchBook = PatchBook Book deriving (Eq, Show)
 instance Action PatchBook BookBody Book where

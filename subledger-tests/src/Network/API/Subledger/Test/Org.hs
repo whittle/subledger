@@ -9,12 +9,11 @@ import Network.API.Subledger.Test.Prelude
 import Test.Hspec
 
 spec :: SubledgerSpec
-spec subledger = do
+spec subledger =
   describe "Org specs" $ do
     it "successfully creates an org" $ do
       result <- subledger $ do
-        o <- createOrg "Sample Org"
-        return o
+        return =<< createOrg "Sample Org"
       result `shouldSatisfy` isRight
       let Right Org { orgState = state
                     , orgBody = body
@@ -27,8 +26,7 @@ spec subledger = do
       result <- subledger $ do
         Org { orgId = oid } <-
           createOrg "Another org"
-        o <- fetchOrg oid
-        return o
+        return =<< fetchOrg oid
       result `shouldSatisfy` isRight
       let Right Org { orgState = state
                     , orgBody = body

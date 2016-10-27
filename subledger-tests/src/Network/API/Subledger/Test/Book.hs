@@ -10,12 +10,13 @@ import Network.API.Subledger.Test.Prelude
 import Test.Hspec
 
 spec :: SubledgerSpec
-spec subledger = do
+spec subledger =
   describe "Book specs" $ do
     it "successfully creates a book" $ do
+      Right org <- subledger $
+        return =<< createOrg "sample book org"
+      let oid = orgId org
       result <- subledger $ do
-        Org { orgId = oid } <-
-          createOrg "sample book org"
         b <- createBook oid $ BookBody "sample book" Nothing
         return b
       result `shouldSatisfy` isRight
@@ -24,7 +25,16 @@ spec subledger = do
                      , bookBody = body
                      } = result
       state `shouldBe` Active
-      -- boid `shouldBe` oid
+      boid `shouldBe` oid
       body `shouldBe` BookBody { bookBodyDescription = "sample book"
                                , bookBodyReference = Nothing
                                }
+    it "successfully retrieves a book" $ do
+      Right org <- subledger $
+        return =<< createOrg "another book org"
+      let oid = orgId org
+      result <- subledger $ do
+        Book { bookId = bid } <-
+          createBook oid $ BookBody "another book" Nothing
+        return =<< fetchBook oid bid
+      result `shouldSatisfy` isRight
