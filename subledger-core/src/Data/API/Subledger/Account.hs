@@ -3,25 +3,27 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Data.API.Subledger.Account
        ( AccountId(..)
        , AccountNormalBalance(..)
        , AccountBody(..)
        , Account(..)
+       , createAccount
        ) where
 
 import           Control.Applicative ((<|>))
 import           Data.Aeson
 import           Data.Aeson.Types (Options(..))
+import           Data.API.Subledger.Book (BookId(..))
+import           Data.API.Subledger.Org (OrgId(..))
+import           Data.API.Subledger.Request
+import           Data.API.Subledger.Types
+import           Data.API.Subledger.Util
 import qualified Data.Text as T
 import           GHC.Generics (Generic)
-import           Network.HTTP.Types.Method (methodPatch, methodPost)
-
-import Data.API.Subledger.Book (BookId(..))
-import Data.API.Subledger.Org (OrgId(..))
-import Data.API.Subledger.Types
-import Data.API.Subledger.Util
+import           Network.HTTP.Types.Method (methodPatch)
 
 newtype AccountId = AccountId { unAccountId :: T.Text }
                   deriving (Eq, Show)
@@ -75,11 +77,11 @@ instance FromJSON Account where
           inner _ = mempty
   parseJSON _ = mempty
 
-data CreateAccount = CreateAccount OrgId BookId AccountBody deriving (Eq, Show)
-instance Action CreateAccount AccountBody Account where
-  toMethod = const methodPost
-  toPathPieces (CreateAccount oid bid _) = ["orgs", unOrgId oid, "books", unBookId bid, "accounts"]
-  toBodyObject (CreateAccount _ _ body) = Just body
+data CreateAccount
+type instance SubledgerReturn CreateAccount = Account
+
+createAccount :: OrgId -> BookId -> AccountBody -> SubledgerRequest CreateAccount
+createAccount (OrgId oid) (BookId bid) = mkRequest POST ["orgs", oid, "books", bid, "accounts"]
 
 data FetchAccounts = FetchAccounts OrgId BookId deriving (Eq, Show)
 instance Action FetchAccounts Void [Account] where
