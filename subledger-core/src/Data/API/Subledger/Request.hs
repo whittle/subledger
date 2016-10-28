@@ -83,9 +83,10 @@ toSeries :: Object -> Series
 toSeries = foldrWithKey f mempty
   where f k v = mappend $ k .= v
 
-mkEmptyRequest :: [Text] -> SubledgerRequest a
-mkEmptyRequest ps = def { path = toPath ps
-                        }
+mkEmptyRequest :: Method -> [Text] -> SubledgerRequest a
+mkEmptyRequest m ps = def { method = m
+                          , path = toPath ps
+                          }
 
 toPath :: [Text] -> Text
 toPath = T.intercalate "/" . ("":) . ("v2":)
@@ -97,6 +98,7 @@ class HasParam action param where
   addParam :: param -> SubledgerRequest action -> SubledgerRequest action
 
 
+-- | Infix operator for adding an optional param to a request.
 (-&-) :: HasParam action param
       => SubledgerRequest action
       -> param

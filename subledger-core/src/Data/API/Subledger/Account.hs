@@ -103,7 +103,7 @@ type instance SubledgerReturn FetchAccount = Account
 
 fetchAccount :: OrgId -> BookId -> AccountId -> SubledgerRequest FetchAccount
 fetchAccount (OrgId oid) (BookId bid) (AccountId aid) =
-  mkEmptyRequest ["orgs", oid, "books", bid, "accounts", aid]
+  mkEmptyRequest GET ["orgs", oid, "books", bid, "accounts", aid]
 
 data PatchAccount = PatchAccount OrgId BookId Account deriving (Eq, Show)
 instance Action PatchAccount AccountBody Account where
