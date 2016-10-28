@@ -73,7 +73,7 @@ data FetchOrg
 type instance SubledgerReturn FetchOrg = Org
 
 fetchOrg :: OrgId -> SubledgerRequest FetchOrg
-fetchOrg oid = mkEmptyRequest GET ["orgs", unOrgId oid]
+fetchOrg oid = mkEmptyRequest ["orgs", unOrgId oid]
 
 data PatchOrg = PatchOrg Org deriving (Eq, Show)
 instance Action PatchOrg OrgBody Org where

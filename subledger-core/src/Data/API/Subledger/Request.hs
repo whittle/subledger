@@ -12,6 +12,7 @@ module Data.API.Subledger.Request
 
 import           Data.Aeson (encode, ToJSON)
 import qualified Data.ByteString.Lazy as L
+import           Data.Default (Default(..))
 import           Data.Text (Text)
 import qualified Data.Text as T
 import           Data.Typeable (Typeable)
@@ -29,25 +30,30 @@ class PathPiece a where
 instance PathPiece Text where
   toUrlText = id
 
--- | Stripe Request holding `Method`, URL and body for a Request.
+-- | HTTP request to be submitted to Subledger. Intended to be
+-- Subledger-specific, but directly translatable to an HTTP request
+-- specific to the HTTP client.
 data SubledgerRequest a =
   SubledgerRequest { method :: Method
                    , path :: Text
+                   , query :: [(Text, Text)]
                    , body :: Maybe L.ByteString
                    } deriving (Eq, Show, Typeable)
 
+instance Default (SubledgerRequest a) where
+  def = SubledgerRequest GET mempty mempty Nothing
+
 -- | Helper method for creating `SubledgerRequest`s
 mkRequest :: (ToJSON b) => Method -> [Text] -> b -> SubledgerRequest a
-mkRequest m ps b = SubledgerRequest { method = m
-                                    , path = toPath ps
-                                    , body = Just $ encode b
-                                    }
+mkRequest m ps b = def { method = m
+                       , path = toPath ps
+                       , body = Just $ encode b
+                       }
 
-mkEmptyRequest :: Method -> [Text] -> SubledgerRequest a
-mkEmptyRequest m ps = SubledgerRequest { method = m
-                                       , path = toPath ps
-                                       , body = Nothing
-                                       }
+mkEmptyRequest :: [Text] -> SubledgerRequest a
+mkEmptyRequest ps = def { method = GET
+                        , path = toPath ps
+                        }
 
 toPath :: [Text] -> Text
 toPath = T.intercalate "/" . ("":) . ("v2":)

@@ -34,11 +34,12 @@ spec subledger =
         state `shouldBe` Active
         abid `shouldBe` Just bid
         aBody `shouldBe` body
-      beforeWith (establishAccount subledger) $
-        it "successfully retrieves an account" $ \(oid, bid, aid) -> do
-          result <- subledger $ do
-            return =<< fetchAccount oid bid aid
-          result `shouldSatisfy` isRight
+      context "with existing account" $
+        beforeWith (establishAccount subledger) $ do
+          it "successfully retrieves an account" $ \(oid, bid, aid) -> do
+            result <- subledger $ do
+              return =<< fetchAccount oid bid aid
+            result `shouldSatisfy` isRight
 
 establishAccount :: SubledgerInterpreter -> (OrgId, BookId) -> IO (OrgId, BookId, AccountId)
 establishAccount subledger (oid, bid) = do

@@ -77,7 +77,7 @@ data FetchBook
 type instance SubledgerReturn FetchBook = Book
 
 fetchBook :: OrgId -> BookId -> SubledgerRequest FetchBook
-fetchBook (OrgId oid) (BookId bid) = mkEmptyRequest GET ["orgs", oid, "books", bid]
+fetchBook (OrgId oid) (BookId bid) = mkEmptyRequest ["orgs", oid, "books", bid]
 
 data PatchBook = PatchBook Book deriving (Eq, Show)
 instance Action PatchBook BookBody Book where

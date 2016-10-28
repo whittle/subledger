@@ -56,8 +56,7 @@ instance Functor SubledgerRequestF where
 toSubledgerRequestF :: (FromJSON ret, SubledgerReturn req ~ ret)
                     => SubledgerRequest req
                     -> SubledgerRequestF ret
-toSubledgerRequestF (SubledgerRequest m p b) =
-  SubledgerRequestF (SubledgerRequest m p b) fromJSON
+toSubledgerRequestF = flip SubledgerRequestF fromJSON
 
 ------------------------------------------------------------------------------
 -- A class which lifts 'SubledgerRequest a' to the 'Subledger' monad and
