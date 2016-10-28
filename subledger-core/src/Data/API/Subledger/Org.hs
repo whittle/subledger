@@ -63,11 +63,9 @@ instance FromJSON Org where
 data CreateOrg
 type instance SubledgerReturn CreateOrg = Org
 
-createOrg :: T.Text -> SubledgerRequest CreateOrg
-createOrg description = mkRequest POST ["orgs"] $
-                        OrgBody { orgBodyDescription = Just description
-                                , orgBodyReference = Nothing
-                                }
+createOrg :: T.Text -- ^ Description
+          -> SubledgerRequest CreateOrg
+createOrg s = mkRequest POST ["orgs"] [("description", String s)]
 
 data FetchOrg
 type instance SubledgerReturn FetchOrg = Org

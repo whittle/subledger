@@ -18,13 +18,13 @@ module Network.API.Subledger.Client.HttpStreams
 
 import           Control.Exception (finally, SomeException, try)
 import           Control.Monad (when)
-import           Data.Aeson (FromJSON, fromJSON, json', Result(..), Value)
+import           Data.Aeson (encode, FromJSON, fromJSON, json', Result(..), Value)
 import qualified Data.ByteString.Lazy.Char8 as L
 import           Data.Default (def)
 import           Data.Maybe (isJust)
 import qualified Data.Text as T
 import           Data.Text.Encoding (encodeUtf8)
-import           Network.API.Subledger.Client (handleStream, Method(..), SubledgerConfig(..), SubledgerError(..), SubledgerErrorType(..), SubledgerRequest(..), SubledgerReturn)
+import           Network.API.Subledger.Client (handleStream, Method(..), nullBody, SubledgerConfig(..), SubledgerError(..), SubledgerErrorType(..), SubledgerRequest(..), SubledgerReturn)
 import qualified Network.Http.Client as C
 import           OpenSSL (withOpenSSL)
 import qualified System.IO.Streams as Streams
@@ -86,21 +86,22 @@ callAPI :: C.Connection                    -- ^ an open connection to the server
         -> SubledgerConfig                 -- ^ SubledgerConfig
         -> SubledgerRequest a              -- ^ SubledgerRequest
         -> IO (Either SubledgerError b)
-callAPI conn fromJSON' SubledgerConfig {..} SubledgerRequest{..} = do
+callAPI conn fromJSON' SubledgerConfig {..} sreq@SubledgerRequest{..} = do
   req <- C.buildRequest $ do
     C.http (m2m method) $ encodeUtf8 path
     C.setAuthorizationBasic (encodeUtf8 apiKey) (encodeUtf8 apiSecret)
     C.setAccept "application/json"
-    when (isJust body) $ C.setContentType "application/json"
+    when (not $ nullBody sreq) $ C.setContentType "application/json"
     C.setHeader "Connection" "Keep-Alive"
     C.setTransferEncoding
   when debug $ print req
-  case body of
-   Just lbs -> do
+  if nullBody sreq
+    then C.sendRequest conn req C.emptyBody
+    else do
+     let lbs = encode body
      when debug $ L.putStrLn lbs
      i <- Streams.fromLazyByteString lbs
      C.sendRequest conn req $ C.inputStreamBody i
-   Nothing -> C.sendRequest conn req C.emptyBody
   C.receiveResponse conn $ \response inputStream ->
     do when debug $ print response
        let statusCode = C.getStatusCode response

@@ -20,19 +20,19 @@ import           Data.API.Subledger.Org (OrgId(..))
 import           Data.API.Subledger.Request
 import           Data.API.Subledger.Types
 import           Data.API.Subledger.Util
-import qualified Data.Text as T
+import           Data.Text (Text)
 import           GHC.Generics (Generic)
 import           Network.HTTP.Types.Method (methodPatch, methodPost)
 
-newtype BookId = BookId { unBookId :: T.Text }
+newtype BookId = BookId { unBookId :: Text }
                deriving (Eq, Show)
 
 instance FromJSON BookId where
   parseJSON (String s) = pure $ BookId s
   parseJSON _ = mempty
 
-data BookBody = BookBody { bookBodyDescription :: T.Text
-                         , bookBodyReference :: Maybe T.Text
+data BookBody = BookBody { bookBodyDescription :: Text
+                         , bookBodyReference :: Maybe Text
                          } deriving (Eq, Generic, Show)
 
 bookBodyFields :: String -> String
@@ -66,8 +66,12 @@ instance FromJSON Book where
 data CreateBook
 type instance SubledgerReturn CreateBook = Book
 
-createBook :: OrgId -> BookBody -> SubledgerRequest CreateBook
-createBook oid = mkRequest POST ["orgs", unOrgId oid, "books"]
+createBook :: OrgId
+           -> Text -- ^ description
+           -> SubledgerRequest CreateBook
+createBook oid s = mkRequest POST
+                             ["orgs", unOrgId oid, "books"]
+                             [("description", String s)]
 
 data FetchBooks = FetchBooks OrgId deriving (Eq, Show)
 instance Action FetchBooks Void [Book] where

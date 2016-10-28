@@ -41,6 +41,7 @@ library
                      , split
                      , text
                      , time
+                     , unordered-containers >= 0.2
   hs-source-dirs:      src
   exposed-modules:     Data.API.Subledger
                      , Data.API.Subledger.Account

@@ -20,7 +20,7 @@ spec subledger =
     beforeWith (establishOrg subledger) $ do
       it "successfully creates a book" $ \oid -> do
         result <- subledger $ do
-          b <- createBook oid $ BookBody "sample book" Nothing
+          b <- createBook oid "sample book"
           return b
         result `shouldSatisfy` isRight
         let Right Book { bookState = state
@@ -35,12 +35,12 @@ spec subledger =
       it "successfully retrieves a book" $ \oid -> do
         result <- subledger $ do
           Book { bookId = bid } <-
-            createBook oid $ BookBody "another book" Nothing
+            createBook oid "another book"
           return =<< fetchBook oid bid
         result `shouldSatisfy` isRight
 
 establishBook :: SubledgerInterpreter -> OrgId -> IO (OrgId, BookId)
 establishBook subledger oid = do
   Right Book { bookId = bid } <-
-    subledger $ return =<< createBook oid (BookBody "account spec book" Nothing)
+    subledger $ return =<< createBook oid "account spec book"
   return (oid, bid)

@@ -23,9 +23,8 @@ spec subledger =
     beforeWith (establishOrg subledger) $
     beforeWith (establishBook subledger) $ do
       it "successfully creates an account" $ \(oid, bid) -> do
-        let body = AccountBody "sample account" Nothing CreditNormal
         result <- subledger $
-          return =<< createAccount oid bid body
+          return =<< createAccount oid bid "sample account" CreditNormal
         result `shouldSatisfy` isRight
         let Right Account { accountState = state
                           , accountBookId = abid
@@ -33,7 +32,7 @@ spec subledger =
                           } = result
         state `shouldBe` Active
         abid `shouldBe` Just bid
-        aBody `shouldBe` body
+        aBody `shouldBe` AccountBody "sample account" Nothing CreditNormal
       context "with existing account" $
         beforeWith (establishAccount subledger) $ do
           it "successfully retrieves an account" $ \(oid, bid, aid) -> do
@@ -43,7 +42,6 @@ spec subledger =
 
 establishAccount :: SubledgerInterpreter -> (OrgId, BookId) -> IO (OrgId, BookId, AccountId)
 establishAccount subledger (oid, bid) = do
-  let body = AccountBody "sample account" Nothing DebitNormal
   Right Account { accountId = aid } <-
-    subledger $ return =<< createAccount oid bid body
+    subledger $ return =<< createAccount oid bid "sample account" DebitNormal
   return (oid, bid, aid)

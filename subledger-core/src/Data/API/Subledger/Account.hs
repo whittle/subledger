@@ -22,11 +22,11 @@ import           Data.API.Subledger.Org (OrgId(..))
 import           Data.API.Subledger.Request
 import           Data.API.Subledger.Types
 import           Data.API.Subledger.Util
-import qualified Data.Text as T
+import           Data.Text (Text)
 import           GHC.Generics (Generic)
 import           Network.HTTP.Types.Method (methodPatch)
 
-newtype AccountId = AccountId { unAccountId :: T.Text }
+newtype AccountId = AccountId { unAccountId :: Text }
                   deriving (Eq, Show)
 
 instance FromJSON AccountId where
@@ -45,8 +45,8 @@ instance FromJSON AccountNormalBalance where
   parseJSON (String "debit") = pure DebitNormal
   parseJSON _ = mempty
 
-data AccountBody = AccountBody { accountBodyDescription :: T.Text
-                               , accountBodyReference :: Maybe T.Text
+data AccountBody = AccountBody { accountBodyDescription :: Text
+                               , accountBodyReference :: Maybe Text
                                , accountBodyNormalBalance :: AccountNormalBalance
                                } deriving (Eq, Generic, Show)
 
@@ -81,8 +81,15 @@ instance FromJSON Account where
 data CreateAccount
 type instance SubledgerReturn CreateAccount = Account
 
-createAccount :: OrgId -> BookId -> AccountBody -> SubledgerRequest CreateAccount
-createAccount (OrgId oid) (BookId bid) = mkRequest POST ["orgs", oid, "books", bid, "accounts"]
+createAccount :: OrgId
+              -> BookId
+              -> Text -- ^ description
+              -> AccountNormalBalance
+              -> SubledgerRequest CreateAccount
+createAccount (OrgId oid) (BookId bid) s b =
+  mkRequest POST
+            ["orgs", oid, "books", bid, "accounts"]
+            [("description", String s), ("normal_balance", toJSON b)]
 
 data FetchAccounts = FetchAccounts OrgId BookId deriving (Eq, Show)
 instance Action FetchAccounts Void [Account] where
