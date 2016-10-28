@@ -46,7 +46,7 @@ instance FromJSON AccountNormalBalance where
   parseJSON _ = mempty
 
 data AccountBody = AccountBody { accountBodyDescription :: Text
-                               , accountBodyReference :: Maybe Text
+                               , accountBodyReference :: Maybe Reference
                                , accountBodyNormalBalance :: AccountNormalBalance
                                } deriving (Eq, Generic, Show)
 

@@ -13,6 +13,7 @@ module Data.API.Subledger.Types
        , fromUTCTime
        , toUTCTime
        , ResourceState(..)
+       , Reference(..)
        , Void
        ) where
 
@@ -21,10 +22,12 @@ import qualified Data.Aeson.Types as A
 import qualified Data.ByteString.Char8 as B
 import           Data.Default (def)
 import qualified Data.Scientific as S
+import           Data.Text (Text)
 import qualified Data.Text as T
 import           Data.Text.Encoding (encodeUtf8)
 import           Data.Time.Clock (DiffTime, UTCTime(..))
 import           Data.Time.ISO8601 (parseISO8601, formatISO8601Millis)
+import           Data.Typeable (Typeable)
 import qualified Data.Void as V
 import           GHC.Generics (Generic)
 import qualified Network.HTTP.Conduit as HTTP
@@ -78,14 +81,14 @@ data AccountingValue = AccountingDebitValue S.Scientific
 
 instance A.FromJSON AccountingValue where
   parseJSON = A.withObject "value object" $ \v -> do
-    t <- v A..: "type" :: A.Parser T.Text
+    t <- v A..: "type" :: A.Parser Text
     case t of
      "debit" -> AccountingDebitValue . toScientific <$> v A..: "amount"
      "credit"-> AccountingCreditValue . toScientific <$> v A..: "amount"
      "zero"  -> pure AccountingZeroValue
      _       -> error "Accounting values must have a type of debit, credit, or zero."
 
-valueObject :: T.Text -> S.Scientific -> A.Value
+valueObject :: Text -> S.Scientific -> A.Value
 valueObject t a = A.object [ "type" A..= A.String t
                            , "amount" A..= AccountingAmount a
                            ]
@@ -108,12 +111,23 @@ data CreditValue = CreditValue S.Scientific
                  deriving (Eq, Show)
 
 
+newtype Reference = Reference
+                    { uri :: Text
+                    } deriving (Eq, Show, Typeable)
+
+instance A.FromJSON Reference where
+  parseJSON = A.withText "Data.API.Subledger.Types.Reference" (return . Reference)
+
+instance A.ToJSON Reference where
+  toJSON = A.String . uri
+
+
 -- Action
 class A.ToJSON a => Action q a r | q -> a r where
   toMethod :: q -> M.Method
   toMethod = const M.methodGet
 
-  toPathPieces :: q -> [T.Text]
+  toPathPieces :: q -> [Text]
 
   toPath :: q -> B.ByteString
   toPath = B.concat . ("v2":) . map (B.cons '/' . encodeUtf8) . toPathPieces

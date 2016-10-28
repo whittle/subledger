@@ -84,5 +84,7 @@ mkEmptyRequest ps = def { path = toPath ps
 toPath :: [Text] -> Text
 toPath = T.intercalate "/" . ("":) . ("v2":)
 
+-- class HasParam request param where
+
 -- | Type-level function mapping from request type to response type
 type family SubledgerReturn a :: *

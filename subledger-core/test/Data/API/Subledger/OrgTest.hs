@@ -40,7 +40,7 @@ case_decode_org = do
   let org'' = Org { orgId = OrgId "baz"
                   , orgState = Active
                   , orgBody = OrgBody { orgBodyDescription = Just "desc of baz"
-                                      , orgBodyReference = Just "http://baz.com/foo"
+                                      , orgBodyReference = Just $ Reference "http://baz.com/foo"
                                       }
                   , orgVersion = 2
                   }

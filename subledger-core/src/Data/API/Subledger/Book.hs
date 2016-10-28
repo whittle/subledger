@@ -32,7 +32,7 @@ instance FromJSON BookId where
   parseJSON _ = mempty
 
 data BookBody = BookBody { bookBodyDescription :: Text
-                         , bookBodyReference :: Maybe Text
+                         , bookBodyReference :: Maybe Reference
                          } deriving (Eq, Generic, Show)
 
 bookBodyFields :: String -> String

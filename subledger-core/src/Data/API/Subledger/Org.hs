@@ -15,7 +15,7 @@ module Data.API.Subledger.Org
 import           Control.Applicative ((<|>))
 import           Data.Aeson
 import           Data.Aeson.Types (Options(..))
-import qualified Data.Text as T
+import           Data.Text (Text)
 import           GHC.Generics (Generic)
 import           Network.HTTP.Types.Method (methodPatch, methodPost)
 
@@ -23,15 +23,15 @@ import           Data.API.Subledger.Request
 import           Data.API.Subledger.Types
 import           Data.API.Subledger.Util
 
-newtype OrgId = OrgId { unOrgId :: T.Text }
+newtype OrgId = OrgId { unOrgId :: Text }
               deriving (Eq, Show)
 
 instance FromJSON OrgId where
   parseJSON (String s) = pure $ OrgId s
   parseJSON _ = mempty
 
-data OrgBody = OrgBody { orgBodyDescription :: Maybe T.Text
-                       , orgBodyReference :: Maybe T.Text
+data OrgBody = OrgBody { orgBodyDescription :: Maybe Text
+                       , orgBodyReference :: Maybe Reference
                        } deriving (Eq, Generic, Show)
 
 orgBodyFields :: String -> String
@@ -63,7 +63,7 @@ instance FromJSON Org where
 data CreateOrg
 type instance SubledgerReturn CreateOrg = Org
 
-createOrg :: T.Text -- ^ Description
+createOrg :: Text -- ^ Description
           -> SubledgerRequest CreateOrg
 createOrg s = mkRequest POST ["orgs"] [("description", String s)]
 

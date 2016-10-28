@@ -25,7 +25,7 @@ case_decode_book = do
                   , bookState = Active
                   , bookVersion = 0
                   , bookBody = BookBody { bookBodyDescription = "blargh"
-                                        , bookBodyReference = Just "http://sample.org/nonsense"
+                                        , bookBodyReference = Just $ Reference "http://sample.org/nonsense"
                                         }
                   , bookOrgId = OrgId "bar"
                   }
