@@ -1,19 +1,21 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Data.API.Subledger.Request
        ( SubledgerRequest(..)
+       , HasParam(..)
        , SubledgerReturn
        , mkRequest
        , mkEmptyRequest
        , nullBody
+       , addPairToRequestBody
+       , (-&-)
        , Method(..)
        ) where
 
-import           Data.Aeson (encode, ToJSON(..))
-import           Data.Aeson.Types ((.=), Object, object, Pair, pairs, Series)
-import qualified Data.ByteString.Lazy as L
+import           Data.Aeson.Types ((.=), Object, object, Pair, pairs, Series, ToJSON(..))
 import           Data.Default (Default(..))
 import           Data.HashMap.Strict (empty, foldrWithKey, insert)
 import           Data.Text (Text)
@@ -54,7 +56,7 @@ instance Default (SubledgerRequest a) where
   def = SubledgerRequest GET mempty mempty $ BodyObject mempty
 
 nullBody :: SubledgerRequest a -> Bool
-nullBody (SubledgerRequest _ _ _ body) = null $ unBody body
+nullBody (SubledgerRequest _ _ _ b) = null $ unBody b
 
 -- | Helper method for creating `SubledgerRequest`s
 mkRequest :: Method -> [Text] -> [Pair] -> SubledgerRequest a
@@ -68,6 +70,10 @@ toObject = foldr addPairToObject empty
 
 addPairToObject :: Pair -> Object -> Object
 addPairToObject (k, v) = insert k v
+
+addPairToRequestBody :: Pair -> SubledgerRequest a -> SubledgerRequest a
+addPairToRequestBody p r@(SubledgerRequest _ _ _ (BodyObject o)) =
+  r { body = BodyObject $ addPairToObject p o }
 
 toPairs :: Object -> [Pair]
 toPairs = foldrWithKey f []
@@ -84,7 +90,19 @@ mkEmptyRequest ps = def { path = toPath ps
 toPath :: [Text] -> Text
 toPath = T.intercalate "/" . ("":) . ("v2":)
 
--- class HasParam request param where
+
+-- | Class used to indicate a relation between a request type and a
+-- param it can optionally accept.
+class HasParam action param where
+  addParam :: param -> SubledgerRequest action -> SubledgerRequest action
+
+
+(-&-) :: HasParam action param
+      => SubledgerRequest action
+      -> param
+      -> SubledgerRequest action
+(-&-) = flip addParam
+
 
 -- | Type-level function mapping from request type to response type
 type family SubledgerReturn a :: *

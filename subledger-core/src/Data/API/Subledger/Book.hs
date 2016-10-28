@@ -73,6 +73,9 @@ createBook oid s = mkRequest POST
                              ["orgs", unOrgId oid, "books"]
                              [("description", String s)]
 
+instance HasParam CreateBook Reference where
+  addParam (Reference s) = addPairToRequestBody ("reference", String s)
+
 data FetchBooks = FetchBooks OrgId deriving (Eq, Show)
 instance Action FetchBooks Void [Book] where
   toPathPieces (FetchBooks oid) = ["orgs", unOrgId oid, "books"]

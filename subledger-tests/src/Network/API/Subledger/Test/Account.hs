@@ -24,7 +24,7 @@ spec subledger =
     beforeWith (establishBook subledger) $ do
       it "successfully creates an account" $ \(oid, bid) -> do
         result <- subledger $
-          return =<< createAccount oid bid "sample account" CreditNormal
+          return =<< (createAccount oid bid "sample account" CreditNormal -&- Reference "http://baz.quux")
         result `shouldSatisfy` isRight
         let Right Account { accountState = state
                           , accountBookId = abid
@@ -32,7 +32,7 @@ spec subledger =
                           } = result
         state `shouldBe` Active
         abid `shouldBe` Just bid
-        aBody `shouldBe` AccountBody "sample account" Nothing CreditNormal
+        aBody `shouldBe` AccountBody "sample account" (Just $ Reference "http://baz.quux") CreditNormal
       context "with existing account" $
         beforeWith (establishAccount subledger) $ do
           it "successfully retrieves an account" $ \(oid, bid, aid) -> do

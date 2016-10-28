@@ -19,6 +19,7 @@ module Network.API.Subledger.Test.Prelude
        , void
        , fail
        , liftIO
+       , module Request
        , fromString
        , module X
        , Either(..)
@@ -36,6 +37,7 @@ import           Data.Either (Either(..), isRight)
 import           Data.Maybe (Maybe(..))
 import           Data.String (fromString)
 import           Network.API.Subledger.Client
+import qualified Data.API.Subledger.Request as Request
 import           Test.Hspec
 import           Test.Hspec.Core.Spec (SpecM)
 

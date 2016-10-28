@@ -17,14 +17,14 @@ spec subledger =
   describe "Org specs" $ do
     it "successfully creates an org" $ do
       result <- subledger $ do
-        return =<< createOrg "Sample Org"
+        return =<< (createOrg "Sample Org" -&- Reference "http://foo.bar")
       result `shouldSatisfy` isRight
       let Right Org { orgState = state
                     , orgBody = body
                     } = result
       state `shouldBe` Active
       body `shouldBe` OrgBody { orgBodyDescription = Just "Sample Org"
-                              , orgBodyReference = Nothing
+                              , orgBodyReference = Just $ Reference "http://foo.bar"
                               }
     it "successfully retrieves an org" $ do
       result <- subledger $ do

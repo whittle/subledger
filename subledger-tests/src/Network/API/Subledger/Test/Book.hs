@@ -20,7 +20,7 @@ spec subledger =
     beforeWith (establishOrg subledger) $ do
       it "successfully creates a book" $ \oid -> do
         result <- subledger $ do
-          b <- createBook oid "sample book"
+          b <- createBook oid "sample book" -&- Reference "http://bar.baz"
           return b
         result `shouldSatisfy` isRight
         let Right Book { bookState = state
@@ -30,7 +30,7 @@ spec subledger =
         state `shouldBe` Active
         boid `shouldBe` oid
         body `shouldBe` BookBody { bookBodyDescription = "sample book"
-                                 , bookBodyReference = Nothing
+                                 , bookBodyReference = Just $ Reference "http://bar.baz"
                                  }
       it "successfully retrieves a book" $ \oid -> do
         result <- subledger $ do

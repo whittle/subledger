@@ -91,6 +91,9 @@ createAccount (OrgId oid) (BookId bid) s b =
             ["orgs", oid, "books", bid, "accounts"]
             [("description", String s), ("normal_balance", toJSON b)]
 
+instance HasParam CreateAccount Reference where
+  addParam (Reference s) = addPairToRequestBody ("reference", String s)
+
 data FetchAccounts = FetchAccounts OrgId BookId deriving (Eq, Show)
 instance Action FetchAccounts Void [Account] where
   toPathPieces (FetchAccounts oid bid) = ["orgs", unOrgId oid, "books", unBookId bid, "accounts"]

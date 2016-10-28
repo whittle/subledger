@@ -15,13 +15,12 @@ module Data.API.Subledger.Org
 import           Control.Applicative ((<|>))
 import           Data.Aeson
 import           Data.Aeson.Types (Options(..))
-import           Data.Text (Text)
-import           GHC.Generics (Generic)
-import           Network.HTTP.Types.Method (methodPatch, methodPost)
-
 import           Data.API.Subledger.Request
 import           Data.API.Subledger.Types
 import           Data.API.Subledger.Util
+import           Data.Text (Text)
+import           GHC.Generics (Generic)
+import           Network.HTTP.Types.Method (methodPatch, methodPost)
 
 newtype OrgId = OrgId { unOrgId :: Text }
               deriving (Eq, Show)
@@ -66,6 +65,9 @@ type instance SubledgerReturn CreateOrg = Org
 createOrg :: Text -- ^ Description
           -> SubledgerRequest CreateOrg
 createOrg s = mkRequest POST ["orgs"] [("description", String s)]
+
+instance HasParam CreateOrg Reference where
+  addParam (Reference s) = addPairToRequestBody ("reference", String s)
 
 data FetchOrg
 type instance SubledgerReturn FetchOrg = Org
