@@ -25,13 +25,13 @@ spec subledger =
         result `shouldSatisfy` isRight
         let Right Book { bookState = state
                        , bookOrgId = boid
-                       , bookBody = body
+                       , bookBody = bBody
                        } = result
         state `shouldBe` Active
         boid `shouldBe` oid
-        body `shouldBe` BookBody { bookBodyDescription = "sample book"
-                                 , bookBodyReference = Just $ Reference "http://bar.baz"
-                                 }
+        bBody `shouldBe` BookBody { bookBodyDescription = "sample book"
+                                  , bookBodyReference = Just $ Reference "http://bar.baz"
+                                  }
       it "successfully retrieves a book" $ \oid -> do
         result <- subledger $ do
           Book { bookId = bid } <-

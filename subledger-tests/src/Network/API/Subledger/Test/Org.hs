@@ -20,12 +20,12 @@ spec subledger =
         return =<< (createOrg "Sample Org" -&- Reference "http://foo.bar")
       result `shouldSatisfy` isRight
       let Right Org { orgState = state
-                    , orgBody = body
+                    , orgBody = oBody
                     } = result
       state `shouldBe` Active
-      body `shouldBe` OrgBody { orgBodyDescription = Just "Sample Org"
-                              , orgBodyReference = Just $ Reference "http://foo.bar"
-                              }
+      oBody `shouldBe` OrgBody { orgBodyDescription = Just "Sample Org"
+                               , orgBodyReference = Just $ Reference "http://foo.bar"
+                               }
     it "successfully retrieves an org" $ do
       result <- subledger $ do
         Org { orgId = oid } <-
@@ -33,12 +33,12 @@ spec subledger =
         return =<< fetchOrg oid
       result `shouldSatisfy` isRight
       let Right Org { orgState = state
-                    , orgBody = body
+                    , orgBody = oBody
                     } = result
       state `shouldBe` Active
-      body `shouldBe` OrgBody { orgBodyDescription = Just "Another org"
-                              , orgBodyReference = Nothing
-                              }
+      oBody `shouldBe` OrgBody { orgBodyDescription = Just "Another org"
+                               , orgBodyReference = Nothing
+                               }
 
 establishOrg :: SubledgerInterpreter -> () -> IO OrgId
 establishOrg subledger _ = do
