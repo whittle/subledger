@@ -34,8 +34,6 @@ library
                      , http-conduit
                      , http-types
                      , iso8601-time
-                     , QuickCheck     >= 2.8
-                     , quickcheck-instances >= 0.3
                      , resourcet
                      , scientific
                      , split
@@ -46,7 +44,6 @@ library
   hs-source-dirs:      src
   exposed-modules:     Data.API.Subledger
                      , Data.API.Subledger.Account
-                     , Data.API.Subledger.ArbitraryInstances
                      , Data.API.Subledger.Book
                      , Data.API.Subledger.Error
                      , Data.API.Subledger.JournalEntry
@@ -64,6 +61,7 @@ test-suite test
                      , subledger-core
                      , aeson
                      , bytestring >= 0.10
+                     , QuickCheck >= 2.8
                      , quickcheck-instances >= 0.3
                      , tasty
                      , tasty-hunit
@@ -74,6 +72,7 @@ test-suite test
   main-is:             Spec.hs
   other-modules:       Data.API.Subledger.AccountTest
                      , Data.API.Subledger.BookTest
+                     , Data.API.Subledger.Instances
                      , Data.API.Subledger.JournalEntryTest
                      , Data.API.Subledger.OrgTest
                      , Data.API.Subledger.TypesTest

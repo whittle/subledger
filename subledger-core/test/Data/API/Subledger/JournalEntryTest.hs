@@ -3,9 +3,10 @@
 
 module Data.API.Subledger.JournalEntryTest (suite) where
 
-import Data.Aeson (decode)
+import Data.Aeson (decode, encode)
 import Data.API.Subledger.Account (AccountId(..))
 import Data.API.Subledger.Book
+import Data.API.Subledger.Instances ()
 import Data.API.Subledger.JournalEntry
 import Data.API.Subledger.Types
 import Data.Monoid ((<>))
@@ -13,6 +14,7 @@ import Data.Time.Calendar
 import Data.Time.Clock
 import Test.Tasty (TestTree)
 import Test.Tasty.HUnit
+import Test.Tasty.QuickCheck
 import Test.Tasty.TH (testGroupGenerator)
 
 
@@ -53,6 +55,9 @@ case_decode_journal_entry_body = do
                               }
   Just body @=? decode json
 
+prop_JSON_roundtrip_JournalEntryBody :: JournalEntryBody -> Bool
+prop_JSON_roundtrip_JournalEntryBody a = decode (encode a) == Just a
+
 case_decode_line_body :: Assertion
 case_decode_line_body = do
   let json = "{\"value\":{\"amount\":\"0.5\",\"type\":\"debit\"},\"reference\":null,\"account\":\"h2pdVW1LJG5OL2mNMfXiSS\",\"description\":\"debit line\"}"
@@ -62,3 +67,6 @@ case_decode_line_body = do
                       , lineBodyValue = AccountingDebitValue 0.5
                       }
   Just body @=? decode json
+
+prop_JSON_roundtrip_LineBody :: LineBody -> Bool
+prop_JSON_roundtrip_LineBody a = decode (encode a) == Just a

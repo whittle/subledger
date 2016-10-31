@@ -5,17 +5,16 @@
 module Data.API.Subledger.TypesTest (suite) where
 
 import Data.Aeson
+import Data.API.Subledger.Instances
+import Data.API.Subledger.Types
 import Data.Maybe (fromJust)
 import Data.Time.Calendar
 import Data.Time.Clock
-import Test.QuickCheck.Instances ()
 import Test.Tasty (TestTree)
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
 import Test.Tasty.TH (testGroupGenerator)
 
-import Data.API.Subledger.ArbitraryInstances ()
-import Data.API.Subledger.Types
 
 suite :: TestTree
 suite = $(testGroupGenerator)
@@ -46,8 +45,7 @@ case_encode_AccountingValue = do
   json3 @=? encode value3
 
 prop_JSON_roundtrip_AccountingValue :: AccountingValue -> Bool
-prop_JSON_roundtrip_AccountingValue a = roundtrip a == a
-  where roundtrip = fromJust . decode . encode
+prop_JSON_roundtrip_AccountingValue a = decode (encode a) == Just a
 
 
 case_decode_EffectiveAt :: Assertion
@@ -66,14 +64,8 @@ case_encode_EffectiveAt = do
                                            }
   json1 @=? encode effectiveAt1
 
-instance Arbitrary EffectiveAt where
-  arbitrary = fromUTCTime <$> arbitrary
-  shrink = fmap fromUTCTime . shrink . toUTCTime
-
 prop_roundtrip_EffectiveAt :: EffectiveAt -> Bool
-prop_roundtrip_EffectiveAt a = roundtrip a == a
-  where roundtrip = fromUTCTime . toUTCTime
+prop_roundtrip_EffectiveAt a = fromUTCTime (toUTCTime a) == a
 
 prop_JSON_roundtrip_EffectiveAt :: EffectiveAt -> Bool
-prop_JSON_roundtrip_EffectiveAt a = roundtrip a == a
-  where roundtrip = fromJust . decode . encode
+prop_JSON_roundtrip_EffectiveAt a = decode (encode a) == Just a
