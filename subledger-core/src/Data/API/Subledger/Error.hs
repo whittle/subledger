@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Data.API.Subledger.Error
        ( SubledgerError(..)
@@ -63,5 +64,6 @@ instance Default SubledgerError where
 instance Exception SubledgerError
 
 instance FromJSON SubledgerError where
-  parseJSON = undefined --withObject "SubledgerError" $ \o ->
-              -- SubledgerError <$>
+  parseJSON = withObject "SubledgerError" $ \o ->
+    SubledgerError APIError <$> o .: "exception"
+                            <*> fmap (fmap mkErrorHTTP) (o .:? "status")
