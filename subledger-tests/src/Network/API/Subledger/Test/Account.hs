@@ -5,11 +5,11 @@
 module Network.API.Subledger.Test.Account
        ( spec
        , establishAccount
+       , establishTwoAccounts
        ) where
 
 import Data.API.Subledger.Account
 import Data.API.Subledger.Book
-import Data.API.Subledger.Error
 import Data.API.Subledger.Org
 import Data.API.Subledger.Types
 import Network.API.Subledger.Test.Book (establishBook)
@@ -45,3 +45,13 @@ establishAccount subledger (oid, bid) = do
   Right Account { accountId = aid } <-
     subledger $ return =<< createAccount oid bid "sample account" DebitNormal
   return (oid, bid, aid)
+
+establishTwoAccounts :: SubledgerInterpreter -> (OrgId, BookId) -> IO (OrgId, BookId, AccountId, AccountId)
+establishTwoAccounts subledger (oid, bid) = do
+  Right Account { accountId = aid1 } <-
+    subledger $ return =<<
+      createAccount oid bid "sample account—debit" DebitNormal
+  Right Account { accountId = aid2 } <-
+    subledger $ return =<<
+      createAccount oid bid "sample account—credit" CreditNormal
+  return (oid, bid, aid1, aid2)

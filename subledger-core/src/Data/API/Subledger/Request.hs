@@ -11,6 +11,7 @@ module Data.API.Subledger.Request
        , mkEmptyRequest
        , nullBody
        , addPairToRequestBody
+       , adjustBodyObject
        , (-&-)
        , Method(..)
        ) where
@@ -87,6 +88,10 @@ mkEmptyRequest :: Method -> [Text] -> SubledgerRequest a
 mkEmptyRequest m ps = def { method = m
                           , path = toPath ps
                           }
+
+adjustBodyObject :: (Object -> Object) -> SubledgerRequest a -> SubledgerRequest a
+adjustBodyObject f r@(SubledgerRequest _ _ _ (BodyObject o)) =
+  r { body = BodyObject $ f o }
 
 toPath :: [Text] -> Text
 toPath = T.intercalate "/" . ("":) . ("v2":)

@@ -4,6 +4,10 @@
 module Data.API.Subledger.JournalEntryTest (suite) where
 
 import Data.Aeson (decode)
+import Data.API.Subledger.Account (AccountId(..))
+import Data.API.Subledger.Book
+import Data.API.Subledger.JournalEntry
+import Data.API.Subledger.Types
 import Data.Monoid ((<>))
 import Data.Time.Calendar
 import Data.Time.Clock
@@ -11,9 +15,6 @@ import Test.Tasty (TestTree)
 import Test.Tasty.HUnit
 import Test.Tasty.TH (testGroupGenerator)
 
-import Data.API.Subledger.Book
-import Data.API.Subledger.JournalEntry
-import Data.API.Subledger.Types
 
 suite :: TestTree
 suite = $(testGroupGenerator)
@@ -50,4 +51,14 @@ case_decode_journal_entry_body = do
                               , journalEntryBodyReference = Just "https://bar.org"
                               , journalEntryBodyEffectiveAt = effectiveAt
                               }
+  Just body @=? decode json
+
+case_decode_line_body :: Assertion
+case_decode_line_body = do
+  let json = "{\"value\":{\"amount\":\"0.5\",\"type\":\"debit\"},\"reference\":null,\"account\":\"h2pdVW1LJG5OL2mNMfXiSS\",\"description\":\"debit line\"}"
+      body = LineBody { lineBodyAccount = AccountId "h2pdVW1LJG5OL2mNMfXiSS"
+                      , lineBodyDescription = "debit line"
+                      , lineBodyReference = Nothing
+                      , lineBodyValue = AccountingDebitValue 0.5
+                      }
   Just body @=? decode json

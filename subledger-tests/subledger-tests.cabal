@@ -47,6 +47,7 @@ library
                      , Network.API.Subledger.Test.AllSpecs
                      , Network.API.Subledger.Test.Book
                      , Network.API.Subledger.Test.Config
+                     , Network.API.Subledger.Test.JournalEntry
                      , Network.API.Subledger.Test.Prelude
                      , Network.API.Subledger.Test.Org
 

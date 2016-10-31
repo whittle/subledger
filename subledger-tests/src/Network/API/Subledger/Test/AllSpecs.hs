@@ -8,6 +8,7 @@ import           Network.API.Subledger.Test.Config (getConfig)
 import           Network.API.Subledger.Test.Prelude (Subledger)
 import qualified Network.API.Subledger.Test.Account
 import qualified Network.API.Subledger.Test.Book
+import qualified Network.API.Subledger.Test.JournalEntry
 import qualified Network.API.Subledger.Test.Org
 
 -- | Main test function entry point
@@ -20,3 +21,4 @@ allSpecs subledger' = do
     Network.API.Subledger.Test.Org.spec subledger
     Network.API.Subledger.Test.Book.spec subledger
     Network.API.Subledger.Test.Account.spec subledger
+    Network.API.Subledger.Test.JournalEntry.spec subledger

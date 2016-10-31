@@ -33,6 +33,9 @@ instance FromJSON AccountId where
   parseJSON (String s) = pure $ AccountId s
   parseJSON _ = mempty
 
+instance ToJSON AccountId where
+  toJSON = String . unAccountId
+
 data AccountNormalBalance = CreditNormal | DebitNormal
                           deriving (Eq, Show)
 
