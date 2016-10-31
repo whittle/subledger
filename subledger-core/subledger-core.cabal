@@ -42,8 +42,7 @@ library
                      , unordered-containers >= 0.2
                      , vector         >= 0.11
   hs-source-dirs:      src
-  exposed-modules:     Data.API.Subledger
-                     , Data.API.Subledger.Account
+  exposed-modules:     Data.API.Subledger.Account
                      , Data.API.Subledger.Book
                      , Data.API.Subledger.Error
                      , Data.API.Subledger.JournalEntry
