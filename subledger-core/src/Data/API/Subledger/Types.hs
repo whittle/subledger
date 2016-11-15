@@ -9,7 +9,7 @@ module Data.API.Subledger.Types
        , BalanceValue(..)
        , CreditValue(..)
        , DebitValue(..)
-       , EffectiveAt
+       , EffectiveAt(..)
        , fromUTCTime
        , toUTCTime
        , ResourceState(..)
