@@ -127,3 +127,6 @@ createAndPostJournalEntry (OrgId oid) (BookId bid) at desc =
 instance HasParam CreateAndPostJournalEntry LineBody where
   addParam l = adjustBodyObject $ adjust f "lines"
     where f (Array a) = Array $ a `mappend` singleton (toJSON l)
+
+instance HasParam CreateAndPostJournalEntry Reference where
+  addParam (Reference s) = addPairToRequestBody ("reference", String s)

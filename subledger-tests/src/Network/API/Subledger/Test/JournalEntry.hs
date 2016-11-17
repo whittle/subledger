@@ -27,15 +27,18 @@ spec subledger =
     beforeWith (establishOrg subledger) $
     beforeWith (establishBook subledger) $
     beforeWith (establishTwoAccounts subledger) $
-      it "successfully creates a journal entry" $ \(oid, bid, aid1, aid2) -> do
+      it "successfully creates a fully-loaded journal entry" $ \(oid, bid, aid1, aid2) -> do
         let at = fromUTCTime $ UTCTime { utctDay = ModifiedJulianDay 57497
                                        , utctDayTime = secondsToDiffTime 62093
                                        }
+            desc = "sample journal entry"
+            ref = "http://foo.bar"
         result <- subledger $ do
-          let a = createAndPostJournalEntry oid bid at "sample journal entry"
-              a' = a -&- LineBody aid1 "debit line" Nothing (AccountingDebitValue 0.5)
-              a'' = a' -&- LineBody aid2 "credit line" Nothing (AccountingCreditValue 0.5)
-          r <- a''
+          let a = createAndPostJournalEntry oid bid at desc
+                  -&- LineBody aid1 "debit line" Nothing (AccountingDebitValue 0.5)
+                  -&- LineBody aid2 "credit line" Nothing (AccountingCreditValue 0.5)
+                  -&- Reference ref
+          r <- a
           return r
         result `shouldSatisfy` isRight
         let Right JournalEntry { journalEntryState = state
@@ -44,7 +47,7 @@ spec subledger =
                                } = result
         state `shouldBe` JEPosting
         bid' `shouldBe` bid
-        body `shouldBe` JournalEntryBody "sample journal entry" Nothing at
+        body `shouldBe` JournalEntryBody desc (Just ref) at
 
 establishJournalEntry :: SubledgerInterpreter
                       -> (OrgId, BookId, AccountId, AccountId)
