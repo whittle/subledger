@@ -52,7 +52,12 @@ instance FromJSON JournalEntryBody where
 instance ToJSON JournalEntryBody where
   toJSON = genericToJSON defaultOptions { fieldLabelModifier = journalEntryBodyFields }
 
-data JournalEntryState = JEActive | JEArchived | JEPosting | JEPosted deriving (Eq, Show)
+data JournalEntryState
+  = JEActive
+  | JEArchived
+  | JEPosting
+  | JEPosted
+  deriving (Bounded, Enum, Eq, Show)
 
 data JournalEntry = JournalEntry { journalEntryId :: JournalEntryId
                                  , journalEntryState :: JournalEntryState

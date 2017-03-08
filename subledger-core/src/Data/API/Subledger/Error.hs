@@ -44,12 +44,13 @@ setErrorHTTP :: Int            -- ^ HTTP Status code
 setErrorHTTP statusCode subledgerError = subledgerError { errorHTTP = Just $ mkErrorHTTP statusCode }
 
 -- | Subledger error types
-data SubledgerErrorType = ConnectionFailure
-                        | ParseFailure
-                        | APIError
-                        | UnknownErrorType
-                        | UnlabeledErrorType
-                        deriving (Eq, Show, Typeable)
+data SubledgerErrorType
+  = ConnectionFailure
+  | ParseFailure
+  | APIError
+  | UnknownErrorType
+  | UnlabeledErrorType
+  deriving (Bounded, Enum, Eq, Show, Typeable)
 
 -- | Subledger error
 data SubledgerError =

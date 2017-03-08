@@ -26,8 +26,11 @@ import           Data.Typeable (Typeable)
 -- | HTTP method
 --
 -- The other methods are not required by the Subledger API.
-data Method = GET | PATCH | POST
-            deriving (Eq, Ord, Read, Show, Typeable)
+data Method
+  = GET
+  | PATCH
+  | POST
+  deriving (Bounded, Enum, Eq, Ord, Read, Show, Typeable)
 
 -- | Types that can be translated into URL path pieces.
 class PathPiece a where

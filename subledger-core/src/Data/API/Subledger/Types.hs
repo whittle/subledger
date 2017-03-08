@@ -35,7 +35,10 @@ import qualified Network.HTTP.Types.Method as M
 
 
 -- ResourceState
-data ResourceState = Active | Archived deriving (Eq, Show)
+data ResourceState
+  = Active
+  | Archived
+  deriving (Bounded, Enum, Eq, Show)
 
 
 -- EffectiveAt

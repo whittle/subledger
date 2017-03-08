@@ -36,8 +36,10 @@ instance FromJSON AccountId where
 instance ToJSON AccountId where
   toJSON = String . unAccountId
 
-data AccountNormalBalance = CreditNormal | DebitNormal
-                          deriving (Eq, Show)
+data AccountNormalBalance
+  = CreditNormal
+  | DebitNormal
+  deriving (Bounded, Enum, Eq, Show)
 
 instance ToJSON AccountNormalBalance where
   toJSON CreditNormal = String "credit"
