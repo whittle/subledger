@@ -142,10 +142,11 @@ class A.ToJSON a => Action q a r | q -> a r where
   toBody = maybe (HTTP.RequestBodyBS "") (HTTP.RequestBodyLBS . A.encode) . toBodyObject
 
   toRequest :: q -> HTTP.Request
-  toRequest q = def { HTTP.method = toMethod q
-                    , HTTP.path = toPath q
-                    , HTTP.requestBody = toBody q
-                    }
+  toRequest q = HTTP.defaultRequest
+    { HTTP.method = toMethod q
+    , HTTP.path = toPath q
+    , HTTP.requestBody = toBody q
+    }
 
 
 -- Void
