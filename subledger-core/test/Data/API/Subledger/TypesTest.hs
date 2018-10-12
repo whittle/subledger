@@ -5,9 +5,8 @@
 module Data.API.Subledger.TypesTest (suite) where
 
 import Data.Aeson
-import Data.API.Subledger.Instances
+import Data.API.Subledger.Instances ()
 import Data.API.Subledger.Types
-import Data.Maybe (fromJust)
 import Data.Time.Calendar
 import Data.Time.Clock
 import Test.Tasty (TestTree)

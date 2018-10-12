@@ -32,12 +32,12 @@ data Method
   | POST
   deriving (Bounded, Enum, Eq, Ord, Read, Show, Typeable)
 
--- | Types that can be translated into URL path pieces.
-class PathPiece a where
-  toUrlText :: a -> Text
+-- -- | Types that can be translated into URL path pieces.
+-- class PathPiece a where
+--   toUrlText :: a -> Text
 
-instance PathPiece Text where
-  toUrlText = id
+-- instance PathPiece Text where
+--   toUrlText = id
 
 newtype BodyObject = BodyObject { unBody :: Object }
                    deriving (Eq, Show, Typeable)

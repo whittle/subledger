@@ -25,7 +25,6 @@ import           Data.API.Subledger.Request
 import           Data.API.Subledger.Types
 import           Data.API.Subledger.Util
 import           Data.HashMap.Strict (adjust)
-import qualified Data.Text as T
 import           Data.Text (Text)
 import           Data.Vector (singleton)
 import           GHC.Generics (Generic)
@@ -132,6 +131,7 @@ createAndPostJournalEntry (OrgId oid) (BookId bid) at desc =
 instance HasParam CreateAndPostJournalEntry LineBody where
   addParam l = adjustBodyObject $ adjust f "lines"
     where f (Array a) = Array $ a `mappend` singleton (toJSON l)
+          f _ = error "HasParam CreateAndPostJournalEntry LineBody requires an Array"
 
 instance HasParam CreateAndPostJournalEntry Reference where
   addParam (Reference s) = addPairToRequestBody ("reference", String s)

@@ -21,7 +21,6 @@ import           Control.Monad (when)
 import           Data.Aeson (encode, FromJSON, fromJSON, json', Result(..), Value)
 import qualified Data.ByteString.Lazy.Char8 as L
 import           Data.Default (def)
-import           Data.Maybe (isJust)
 import qualified Data.Text as T
 import           Data.Text.Encoding (encodeUtf8)
 import           Network.API.Subledger.Client (handleStream, Method(..), nullBody, SubledgerConfig(..), SubledgerError(..), SubledgerErrorType(..), SubledgerRequest(..), SubledgerReturn)

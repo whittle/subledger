@@ -11,7 +11,6 @@ module Data.API.Subledger.Types
        , DebitValue(..)
        , EffectiveAt(..)
        , fromUTCTime
-       , toUTCTime
        , ResourceState(..)
        , Reference(..)
        , Void
@@ -20,7 +19,6 @@ module Data.API.Subledger.Types
 import qualified Data.Aeson as A
 import qualified Data.Aeson.Types as A
 import qualified Data.ByteString.Char8 as B
-import           Data.Default (def)
 import qualified Data.Scientific as S
 import           Data.Text (Text)
 import qualified Data.Text as T

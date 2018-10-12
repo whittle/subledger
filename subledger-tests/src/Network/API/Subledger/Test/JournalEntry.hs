@@ -43,11 +43,11 @@ spec subledger =
         result `shouldSatisfy` isRight
         let Right JournalEntry { journalEntryState = state
                                , journalEntryBookId = bid'
-                               , journalEntryBody = body
+                               , journalEntryBody = bdy
                                } = result
         state `shouldBe` JEPosting
         bid' `shouldBe` bid
-        body `shouldBe` JournalEntryBody desc (Just ref) at
+        bdy `shouldBe` JournalEntryBody desc (Just ref) at
 
 establishJournalEntry :: SubledgerInterpreter
                       -> (OrgId, BookId, AccountId, AccountId)
