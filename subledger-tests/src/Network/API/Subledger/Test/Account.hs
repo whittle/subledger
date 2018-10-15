@@ -40,10 +40,11 @@ spec subledger =
             result <- subledger $
               fetchAccount oid bid aid >>= return
             result `shouldSatisfy` isRight
-          -- it "successfully retrieves the balance of that account" $ \(oid, bid, aid) -> do
-          --   result <- subledger $
-          --     return =<< ((toRequest . FetchAccountBalance oid bid aid) =<< (fmap fromUTCTime $ liftIO getCurrentTime))
-          --   result `shouldSatisfy` isRight
+          it "successfully retrieves the balance of that account" $ \(oid, bid, aid) -> do
+            result <- subledger $ do
+              t <- fmap fromUTCTime $ liftIO getCurrentTime
+              fetchAccountBalance oid bid aid t >>= return
+            result `shouldSatisfy` isRight
 
 establishAccount :: SubledgerInterpreter -> (OrgId, BookId) -> IO (OrgId, BookId, AccountId)
 establishAccount subledger (oid, bid) = do

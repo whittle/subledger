@@ -51,8 +51,8 @@ instance ToJSON BodyObject where
 -- specific to the HTTP client.
 data SubledgerRequest a =
   SubledgerRequest { method :: Method
-                   , path :: Text
-                   , query :: [(Text, Text)]
+                   , path :: [Text]
+                   , query :: [(Text, Maybe Text)]
                    , body :: BodyObject
                    } deriving (Eq, Show, Typeable)
 
@@ -96,9 +96,8 @@ adjustBodyObject :: (Object -> Object) -> SubledgerRequest a -> SubledgerRequest
 adjustBodyObject f r@(SubledgerRequest _ _ _ (BodyObject o)) =
   r { body = BodyObject $ f o }
 
-toPath :: [Text] -> Text
-toPath = T.intercalate "/" . ("":) . ("v2":)
-
+toPath :: [Text] -> [Text]
+toPath = ("v2":)
 
 -- | Class used to indicate a relation between a request type and a
 -- param it can optionally accept.

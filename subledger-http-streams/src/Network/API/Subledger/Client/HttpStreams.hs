@@ -19,12 +19,15 @@ module Network.API.Subledger.Client.HttpStreams
 import           Control.Exception (finally, SomeException, try)
 import           Control.Monad (when)
 import           Data.Aeson (encode, FromJSON, fromJSON, json', Result(..), Value)
+import           Data.Binary.Builder (toLazyByteString)
+import qualified Data.ByteString as S
 import qualified Data.ByteString.Lazy.Char8 as L
 import           Data.Default (def)
 import qualified Data.Text as T
 import           Data.Text.Encoding (encodeUtf8)
 import           Network.API.Subledger.Client (handleStream, Method(..), nullBody, SubledgerConfig(..), SubledgerError(..), SubledgerErrorType(..), SubledgerRequest(..), SubledgerReturn)
 import qualified Network.Http.Client as C
+import qualified Network.HTTP.Types as H
 import           OpenSSL (withOpenSSL)
 import qualified System.IO.Streams as Streams
 import qualified System.IO.Streams.Attoparsec as Streams
@@ -87,7 +90,7 @@ callAPI :: C.Connection                    -- ^ an open connection to the server
         -> IO (Either SubledgerError b)
 callAPI conn fromJSON' SubledgerConfig {..} sreq@SubledgerRequest{..} = do
   req <- C.buildRequest $ do
-    C.http (m2m method) $ encodeUtf8 path
+    C.http (m2m method) $ encodePath path query
     C.setAuthorizationBasic (encodeUtf8 apiKey) (encodeUtf8 apiSecret)
     C.setAccept "application/json"
     when (not $ nullBody sreq) $ C.setContentType "application/json"
@@ -112,3 +115,6 @@ callAPI conn fromJSON' SubledgerConfig {..} sreq@SubledgerRequest{..} = do
 
 debug :: Bool
 debug = True
+
+encodePath :: [T.Text] -> [(T.Text, Maybe T.Text)] -> S.ByteString
+encodePath p q = L.toStrict $ toLazyByteString $ H.encodePath p $ H.toQuery q

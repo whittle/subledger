@@ -9,6 +9,7 @@ module Data.API.Subledger.Types
        , BalanceValue(..)
        , CreditValue(..)
        , DebitValue(..)
+       , WrappedBalanceValue(..)
        , EffectiveAt(..)
        , fromUTCTime
        , ResourceState(..)
@@ -80,7 +81,7 @@ instance A.ToJSON AccountingAmount where
   toJSON = A.String . T.pack . S.formatScientific S.Fixed Nothing . toScientific
 
 
--- AccountingValue
+-- | AccountingValue
 data AccountingValue = AccountingDebitValue S.Scientific
                      | AccountingCreditValue S.Scientific
                      | AccountingZeroValue
@@ -106,18 +107,74 @@ instance A.ToJSON AccountingValue where
   toJSON AccountingZeroValue = valueObject "zero" 0
 
 
+-- | BalanceValue
 data BalanceValue = BalanceValue DebitValue CreditValue AccountingValue
                   deriving (Eq, Show)
 
+instance A.FromJSON BalanceValue where
+  parseJSON = A.withObject "balance value object" $ \v ->
+    BalanceValue <$> v A..: "debit_value"
+                 <*> v A..: "credit_value"
+                 <*> v A..: "value"
+
+instance A.ToJSON BalanceValue where
+  toJSON (BalanceValue d c a) = A.object
+    [ "debit_value" A..= d
+    , "credit_value" A..= c
+    , "value" A..= a
+    ]
+
+
+-- | DebitValue
 data DebitValue = DebitValue S.Scientific
                 | DebitZeroValue
                 deriving (Eq, Show)
 
+instance A.FromJSON DebitValue where
+  parseJSON = A.withObject "debit value" $ \v -> do
+    t <- v A..: "type" :: A.Parser Text
+    case t of
+      "debit" -> DebitValue . toScientific <$> v A..: "amount"
+      "zero" -> pure DebitZeroValue
+      _ -> error "Debit values must have a type of debit or zero."
+
+instance A.ToJSON DebitValue where
+  toJSON (DebitValue s) = valueObject "debit" s
+  toJSON DebitZeroValue = valueObject "zero" 0
+
+
+-- | CreditValue
 data CreditValue = CreditValue S.Scientific
-                 | CreditValueZero
+                 | CreditZeroValue
                  deriving (Eq, Show)
 
+instance A.FromJSON CreditValue where
+  parseJSON = A.withObject "credit value" $ \v -> do
+    t <- v A..: "type" :: A.Parser Text
+    case t of
+      "credit" -> CreditValue . toScientific <$> v A..: "amount"
+      "zero" -> pure CreditZeroValue
+      _ -> error "Credit values must have a type of credit or zero."
 
+instance A.ToJSON CreditValue where
+  toJSON (CreditValue s) = valueObject "credit" s
+  toJSON CreditZeroValue = valueObject "zero" 0
+
+
+-- | WrappedBalanceValue
+newtype WrappedBalanceValue = WrappedBalanceValue
+  { unwrapBalanceValue :: BalanceValue }
+  deriving (Eq, Show)
+
+instance A.FromJSON WrappedBalanceValue where
+  parseJSON = A.withObject "wrapped balance value objecT" $ \v ->
+    WrappedBalanceValue <$> v A..: "balance"
+
+instance A.ToJSON WrappedBalanceValue where
+  toJSON (WrappedBalanceValue b) = A.object ["balance" A..= b]
+
+
+-- | Reference
 newtype Reference = Reference
                     { uri :: Text
                     } deriving (Eq, Show, Typeable)
