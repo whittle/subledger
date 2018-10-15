@@ -12,6 +12,7 @@ module Data.API.Subledger.Account
        , Account(..)
        , createAccount
        , fetchAccount
+       , FetchAccountBalance(..)
        ) where
 
 import           Control.Applicative ((<|>))
@@ -23,6 +24,7 @@ import           Data.API.Subledger.Request
 import           Data.API.Subledger.Types
 import           Data.API.Subledger.Util
 import           Data.Text (Text)
+import           Data.Textual (toText)
 import           GHC.Generics (Generic)
 import           Network.HTTP.Types.Method (methodPatch)
 
@@ -83,6 +85,7 @@ instance FromJSON Account where
           inner _ = mempty
   parseJSON _ = mempty
 
+-- POST /orgs/{org_id}/books/{book_id}/accounts
 data CreateAccount
 type instance SubledgerReturn CreateAccount = Account
 
@@ -99,10 +102,12 @@ createAccount (OrgId oid) (BookId bid) s b =
 instance HasParam CreateAccount Reference where
   addParam (Reference s) = addPairToRequestBody ("reference", String s)
 
+-- GET /orgs/{org_id}/books/{book_id}/accounts
 data FetchAccounts = FetchAccounts OrgId BookId deriving (Eq, Show)
 instance Action FetchAccounts Void [Account] where
   toPathPieces (FetchAccounts oid bid) = ["orgs", unOrgId oid, "books", unBookId bid, "accounts"]
 
+-- GET /orgs/{org_id}/books/{book_id}/accounts/{account_id}
 data FetchAccount
 type instance SubledgerReturn FetchAccount = Account
 
@@ -110,6 +115,7 @@ fetchAccount :: OrgId -> BookId -> AccountId -> SubledgerRequest FetchAccount
 fetchAccount (OrgId oid) (BookId bid) (AccountId aid) =
   mkEmptyRequest GET ["orgs", oid, "books", bid, "accounts", aid]
 
+-- PATCH /orgs/{org_id}/books/{book_id}/accounts/{account_id}
 data PatchAccount = PatchAccount OrgId BookId Account deriving (Eq, Show)
 instance Action PatchAccount AccountBody Account where
   toMethod = const methodPatch
@@ -122,8 +128,17 @@ instance Action PatchAccount AccountBody Account where
                                                 ]
   toBodyObject (PatchAccount _ _ account) = Just $ accountBody account
 
+-- GET /orgs/{org_id}/books/{book_id}/accounts/{account_id}/balance
+data FetchAccountBalance = FetchAccountBalance OrgId BookId AccountId EffectiveAt deriving (Eq, Show)
+type instance SubledgerReturn FetchAccountBalance = BalanceValue
+
+instance Action FetchAccountBalance Void BalanceValue where
+  toPathPieces (FetchAccountBalance oid bid aid _) =
+    ["orgs", unOrgId oid, "books", unBookId bid, "accounts", unAccountId aid, "balance"]
+  toQueryParams (FetchAccountBalance _ _ _ t) =
+    [("at", Just $ toText t)]
+
 -- GET /orgs/{org_id}/books/{book_id}/accounts/{account_id}/lines
 -- POST /orgs/{org_id}/books/{book_id}/accounts/{account_id}/archive
 -- POST /orgs/{org_id}/books/{book_id}/accounts/{account_id}/activate
--- GET /orgs/{org_id}/books/{book_id}/accounts/{account_id}/balance
 -- GET /orgs/{org_id}/books/{book_id}/accounts/{account_id}/first_and_last_line

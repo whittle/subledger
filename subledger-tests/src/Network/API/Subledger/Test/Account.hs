@@ -12,6 +12,7 @@ import Data.API.Subledger.Account
 import Data.API.Subledger.Book
 import Data.API.Subledger.Org
 import Data.API.Subledger.Types
+import Data.Time.Clock (getCurrentTime)
 import Network.API.Subledger.Test.Book (establishBook)
 import Network.API.Subledger.Test.Org (establishOrg)
 import Network.API.Subledger.Test.Prelude
@@ -36,9 +37,13 @@ spec subledger =
       context "with existing account" $
         beforeWith (establishAccount subledger) $ do
           it "successfully retrieves an account" $ \(oid, bid, aid) -> do
-            result <- subledger $ do
-              return =<< fetchAccount oid bid aid
+            result <- subledger $
+              fetchAccount oid bid aid >>= return
             result `shouldSatisfy` isRight
+          -- it "successfully retrieves the balance of that account" $ \(oid, bid, aid) -> do
+          --   result <- subledger $
+          --     return =<< ((toRequest . FetchAccountBalance oid bid aid) =<< (fmap fromUTCTime $ liftIO getCurrentTime))
+          --   result `shouldSatisfy` isRight
 
 establishAccount :: SubledgerInterpreter -> (OrgId, BookId) -> IO (OrgId, BookId, AccountId)
 establishAccount subledger (oid, bid) = do

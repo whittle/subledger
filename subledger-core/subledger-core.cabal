@@ -31,6 +31,7 @@ library
                      , aeson          >= 0.11
                      , bytestring     >= 0.10
                      , data-default
+                     , data-textual
                      , http-conduit
                      , http-types
                      , iso8601-time

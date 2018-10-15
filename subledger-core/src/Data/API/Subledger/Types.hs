@@ -16,6 +16,8 @@ module Data.API.Subledger.Types
        , Void
        ) where
 
+import           Prelude hiding (print)
+import           Control.Arrow ((***))
 import qualified Data.Aeson as A
 import qualified Data.Aeson.Types as A
 import qualified Data.ByteString.Char8 as B
@@ -23,6 +25,7 @@ import qualified Data.Scientific as S
 import           Data.Text (Text)
 import qualified Data.Text as T
 import           Data.Text.Encoding (encodeUtf8)
+import           Data.Textual
 import           Data.Time.Clock (DiffTime, UTCTime(..))
 import           Data.Time.ISO8601 (parseISO8601, formatISO8601Millis)
 import           Data.Typeable (Typeable)
@@ -43,6 +46,16 @@ data ResourceState
 newtype EffectiveAt = EffectiveAt { toUTCTime :: UTCTime }
                       deriving (Eq, Show)
 
+instance A.FromJSON EffectiveAt where
+  parseJSON = A.withText "ISO8601" (outer . parseISO8601 . T.unpack)
+    where outer = maybe mempty (pure . EffectiveAt)
+
+instance Printable EffectiveAt where
+  print = print . formatISO8601Millis . toUTCTime
+
+instance A.ToJSON EffectiveAt where
+  toJSON = A.String . toText
+
 fromUTCTime :: UTCTime -> EffectiveAt
 fromUTCTime = EffectiveAt . roundUTCTimeToMillis
 
@@ -51,13 +64,6 @@ roundUTCTimeToMillis (UTCTime day dayTime) =
   UTCTime day $ roundDiffToMillis dayTime
   where roundDiffToMillis = (/1000) . fromInt . truncate . (*1000)
         fromInt = fromIntegral :: Int -> DiffTime
-
-instance A.FromJSON EffectiveAt where
-  parseJSON = A.withText "ISO8601" (outer . parseISO8601 . T.unpack)
-    where outer = maybe mempty (pure . EffectiveAt)
-
-instance A.ToJSON EffectiveAt where
-  toJSON = A.String . T.pack . formatISO8601Millis . toUTCTime
 
 
 -- AccountingAmount
@@ -133,6 +139,12 @@ class A.ToJSON a => Action q a r | q -> a r where
   toPath :: q -> B.ByteString
   toPath = B.concat . ("v2":) . map (B.cons '/' . encodeUtf8) . toPathPieces
 
+  toQueryParams :: q -> [(Text, Maybe Text)]
+  toQueryParams = const []
+
+  toQueryString :: q -> [(B.ByteString, Maybe B.ByteString)]
+  toQueryString = map (encodeUtf8 *** (encodeUtf8 <$>)) . toQueryParams
+
   toBodyObject :: A.ToJSON a => q -> Maybe a
   toBodyObject = const Nothing
 
@@ -140,7 +152,7 @@ class A.ToJSON a => Action q a r | q -> a r where
   toBody = maybe (HTTP.RequestBodyBS "") (HTTP.RequestBodyLBS . A.encode) . toBodyObject
 
   toRequest :: q -> HTTP.Request
-  toRequest q = HTTP.defaultRequest
+  toRequest q = HTTP.setQueryString (toQueryString q) $ HTTP.defaultRequest
     { HTTP.method = toMethod q
     , HTTP.path = toPath q
     , HTTP.requestBody = toBody q
